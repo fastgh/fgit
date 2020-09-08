@@ -1,2 +1,2 @@
 # fgit
-GITHUB client wrapper with fast access via transparent proxy
+GITHUB client wrapper, for Chinese developers, with fast access via transparent proxy
