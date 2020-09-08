@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"os"
+	"strings"
 
 	"net/url"
 
@@ -20,6 +21,7 @@ type CommandLineT struct {
 	GitCommand            string
 	GitRemoteName         string
 	IsGitClone            bool
+	GitCloneDir           string
 	GitURLText            string
 	ArgIndexOfGitURLText  int
 	PerhapsNeedInstrument bool
@@ -38,7 +40,7 @@ func PrintHelp(errorMode bool) {
 	} else {
 		c = color.Blue
 	}
-	c.Printf("fgit: a fastgithub git client, version %s\n", AppVersion)
+	c.Printf("fgit: version %s. Git client with built-in GITHUB proxy, 50x faster for Chinese developers.\n", AppVersion)
 }
 
 func (me CommandLine) String() string {
@@ -58,14 +60,13 @@ func ParseCommandLine() CommandLine {
 		GitCommand:            "",
 		GitRemoteName:         "",
 		IsGitClone:            false,
+		GitCloneDir:           "",
 		GitURLText:            "",
 		ArgIndexOfGitURLText:  -1,
 		PerhapsNeedInstrument: false,
 		IsPrivate:             &valueFalse,
 		Args:                  []string{},
 	}
-
-	hasCmd := false
 
 	for i := 1; i < len(os.Args); i++ {
 		arg := os.Args[i]
@@ -89,21 +90,20 @@ func ParseCommandLine() CommandLine {
 			continue
 		}
 
-		if hasCmd {
-			continue
-		}
-		hasCmd = true
-		r.GitCommand = arg
+		if arg == "clone" {
+			r.GitCommand = "clone"
 
-		if r.GitCommand == "clone" {
 			r.IsGitClone = true
 			r.PerhapsNeedInstrument = true
-
-			if i < len(os.Args)-1 {
-				r.ArgIndexOfGitURLText = i + 1
+		} else if r.IsGitClone {
+			if r.ArgIndexOfGitURLText == -1 {
+				r.ArgIndexOfGitURLText = i
 				r.GitURLText = os.Args[r.ArgIndexOfGitURLText]
+			} else {
+				r.GitCloneDir = arg
 			}
-		} else if r.GitCommand == "pull" || r.GitCommand == "push" || r.GitCommand == "fetch" {
+		} else if arg == "pull" || arg == "push" || arg == "fetch" {
+			r.GitCommand = arg
 			r.PerhapsNeedInstrument = true
 			if i < len(os.Args)-1 {
 				r.GitRemoteName = os.Args[i+1]
@@ -111,6 +111,13 @@ func ParseCommandLine() CommandLine {
 			if r.GitCommand == "push" {
 				r.IsPrivate = &valueTrue
 			}
+		}
+	}
+
+	if r.IsGitClone && len(r.GitCloneDir) == 0 {
+		r.GitCloneDir = r.GitURLText[strings.LastIndex(r.GitURLText, "/")+1:]
+		if strings.HasSuffix(strings.ToLower(r.GitCloneDir), ".git") {
+			r.GitCloneDir = r.GitCloneDir[:len(r.GitCloneDir)-4]
 		}
 	}
 

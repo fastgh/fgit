@@ -1,57 +1,38 @@
 package main
 
-// ConfigGitHTTPProxy ...
-func ConfigGitHTTPProxy(global bool, newHTTPProxy, newHTTPSProxy string) (oldHTTPProxy, oldHTTPSProxy string) {
-	var scope string
-	if global {
-		scope = "--global"
-	} else {
-		scope = "--local"
-	}
-
-	ExecGit([]string{"config", scope, "--set", "http.proxy", newHTTPProxy})
-	ExecGit([]string{"config", scope, "--set", "https.proxy", newHTTPSProxy})
-
-	oldHTTPProxy = ExecGit([]string{"config", scope, "--get", "http.proxy"})
-	oldHTTPSProxy = ExecGit([]string{"config", scope, "--get", "https.proxy"})
-
-	return
-}
-
-// ResetGitHTTPProxy ...
-func ResetGitHTTPProxy(global bool, oldHTTPProxy, oldHTTPSProxy string) {
-	var scope string
-	if global {
-		scope = "--global"
-	} else {
-		scope = "--local"
-	}
-
-	if len(oldHTTPProxy) > 0 {
-		ExecGit([]string{"config", scope, "--set", "http.proxy", oldHTTPProxy})
-	} else {
-		ExecGit([]string{"config", scope, "--unset-all", "http.proxy"})
-	}
-
-	if len(oldHTTPSProxy) > 0 {
-		ExecGit([]string{"config", scope, "--set", "https.proxy", oldHTTPSProxy})
-	} else {
-		ExecGit([]string{"config", scope, "--unset-all", "https.proxy"})
-	}
+// SetGitRemoteURL ...
+func SetGitRemoteURL(workDir string, remoteName string, remoteURL string) {
+	ExecGit(workDir, []string{"remote", "set-url", "origin", remoteURL})
 }
 
 // GithubInstrument ...GithubInstrument
 func GithubInstrument(isPrivate bool, config Config) {
-
 	var global bool
+	var workDir string
 	if cmdline.IsGitClone {
 		global = true
+		workDir = cmdline.GitCloneDir
 	} else {
 		global = false
+		workDir = ""
 	}
 
-	//TODO: recover
-	oldHTTPProxy, oldHTTPSProxy := ConfigGitHTTPProxy(global, config.Proxy, config.Proxy)
-	oldGit(true, true)
-	ResetGitHTTPProxy(global, oldHTTPProxy, oldHTTPSProxy)
+	if isPrivate {
+		//TODO: recover
+		oldHTTPProxy, oldHTTPSProxy := ConfigGitHTTPProxy(workDir, global, config.Proxy, config.Proxy)
+		oldGit(true, false)
+		ResetGitHTTPProxy(workDir, global, oldHTTPProxy, oldHTTPSProxy)
+	} else {
+		//TODO:  drecover
+		newCloneURL := InstrumentURLwithMirror(cmdline.GitURLText, config.Mirror)
+
+		if !cmdline.IsGitClone {
+			SetGitRemoteURL(workDir, cmdline.GitRemoteName, newCloneURL)
+		} else {
+			cmdline.Args[cmdline.ArgIndexOfGitURLText-1] = newCloneURL
+		}
+
+		oldGit(true, false)
+		SetGitRemoteURL(workDir, cmdline.GitRemoteName, cmdline.GitURLText)
+	}
 }

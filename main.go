@@ -20,15 +20,15 @@ func oldGit(fgitHelpFirst bool, errorMode bool) {
 		fmt.Println()
 
 		if cmdline == nil {
-			ExecGit(os.Args[1:])
+			ExecGit("", os.Args[1:])
 		} else {
-			ExecGit(cmdline.Args)
+			ExecGit("", cmdline.Args)
 		}
 	} else {
 		if cmdline == nil {
-			ExecGit(os.Args[1:])
+			ExecGit("", os.Args[1:])
 		} else {
-			ExecGit(cmdline.Args)
+			ExecGit("", cmdline.Args)
 		}
 
 		fmt.Println()
@@ -53,13 +53,14 @@ func main() {
 	defer func() {
 		if p := recover(); p != nil {
 			oldGit(false, true)
-			color.Red.Printf("%v\n", p)
+			color.Red.Printf("error: %v\n", p)
 			return
 		}
 	}()
 
 	cmdline.GitURLText = ResolveGitURLText(cmdline.GitURLText, cmdline.GitRemoteName, cmdline.IsGitClone)
 	gitURL := ResolveGitURL(cmdline.GitURLText)
+
 	if Debug {
 		fmt.Printf("GitURLText: %s, gitURL=%v\n", cmdline.GitURLText, gitURL)
 	}
@@ -84,9 +85,5 @@ func main() {
 	}
 
 	cfg := LoadConfig()
-	if Debug {
-		fmt.Printf("Configuration: \n%v\n", cfg)
-	}
-
 	GithubInstrument(isPrivate, cfg)
 }

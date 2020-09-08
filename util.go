@@ -8,10 +8,10 @@ import (
 )
 
 // Debug ...
-var Debug = true
+var Debug = false
 
 // Mock ...
-var Mock = true
+var Mock = false
 
 // FileStat ...
 func FileStat(path string, ensureExists bool) os.FileInfo {

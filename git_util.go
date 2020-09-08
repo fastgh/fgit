@@ -10,11 +10,51 @@ import (
 	"github.com/pkg/errors"
 )
 
+// ConfigGitHTTPProxy ...
+func ConfigGitHTTPProxy(workDir string, global bool, newHTTPProxy, newHTTPSProxy string) (oldHTTPProxy, oldHTTPSProxy string) {
+	var scope string
+	if global {
+		scope = "--global"
+	} else {
+		scope = "--local"
+	}
+
+	ExecGit(workDir, []string{"config", scope, "--set", "http.https://github.com.proxy", newHTTPProxy})
+	ExecGit(workDir, []string{"config", scope, "--set", "https.https://github.com.proxy", newHTTPSProxy})
+
+	oldHTTPProxy = ExecGit(workDir, []string{"config", scope, "--get", "http.https://github.com.proxy"})
+	oldHTTPSProxy = ExecGit(workDir, []string{"config", scope, "--get", "https.https://github.com.proxy"})
+
+	return
+}
+
+// ResetGitHTTPProxy ...
+func ResetGitHTTPProxy(workDir string, global bool, oldHTTPProxy, oldHTTPSProxy string) {
+	var scope string
+	if global {
+		scope = "--global"
+	} else {
+		scope = "--local"
+	}
+
+	if len(oldHTTPProxy) > 0 {
+		ExecGit(workDir, []string{"config", scope, "--set", "http.https://github.com.proxy", oldHTTPProxy})
+	} else {
+		ExecGit(workDir, []string{"config", scope, "--unset-all", "http.https://github.com.proxyy"})
+	}
+
+	if len(oldHTTPSProxy) > 0 {
+		ExecGit(workDir, []string{"config", scope, "--set", "https.https://github.com.proxy", oldHTTPSProxy})
+	} else {
+		ExecGit(workDir, []string{"config", scope, "--unset-all", "https.https://github.com.proxy"})
+	}
+}
+
 // ResolveGitURLText ...
 func ResolveGitURLText(gitURLText string, remoteName string, isGitClone bool) string {
 	if len(gitURLText) == 0 {
 		if !isGitClone {
-			gitURLText = GetGitRemoteURL(remoteName)
+			gitURLText = GetGitRemoteURL("", remoteName)
 		}
 	}
 
@@ -43,12 +83,12 @@ func ResolveGitURL(gitURLText string) *url.URL {
 }
 
 // GetGitRemoteURL ...
-func GetGitRemoteURL(remoteName string) string {
-	return ExecGit([]string{"remote", "get-url", "origin"})
+func GetGitRemoteURL(workDir string, remoteName string) string {
+	return ExecGit(workDir, []string{"remote", "get-url", "origin"})
 }
 
 // ExecGit ...
-func ExecGit(args []string) string {
+func ExecGit(workDir string, args []string) string {
 	if Debug {
 		fmt.Println("git " + strings.Join(args, " "))
 	}
@@ -59,6 +99,7 @@ func ExecGit(args []string) string {
 	}
 
 	var command = exec.Command("git", args...)
+	command.Dir = workDir
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
 	var err = command.Start()
