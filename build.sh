@@ -9,9 +9,9 @@ INSTRUMENT_SRC_PRIVATE=${PROJECT_DIR}/../${INSTRUMENT_SRC}
 INSTRUMENT_SRC_PUB=${PROJECT_DIR}/${INSTRUMENT_SRC}
 INSTRUMENT_SRC_PUB_BACKUP=${INSTRUMENT_SRC_PUB}.backup
 
-TARGET_DIR=${PROJECT_DIR}/target
+BUILD_DIR=${PROJECT_DIR}/build
 
-rm -rf ${TARGET_DIR}
+rm -rf ${BUILD_DIR}
 cd ${PROJECT_DIR}
 
 mv ${INSTRUMENT_SRC_PUB} ${INSTRUMENT_SRC_PUB_BACKUP}
@@ -21,16 +21,18 @@ fi
 
 go_build() {
     local _OS=$1
-    local _PREFIX=$2
-    local _OS_TARGET_DIR=${TARGET_DIR}/${_OS}
+    local _EXT=$_OS
+     if [ $_EXT == 'windows' ]; then
+      _EXT='exe'
+     fi
 
-    mkdir -p ${_OS_TARGET_DIR}
-    GOOS=${_OS} GOARCH=amd64 go build -o ${_OS_TARGET_DIR}/fgit${_PREFIX}
+    mkdir -p ${BUILD_DIR}
+    GOOS=${_OS} GOARCH=amd64 go build -o ${BUILD_DIR}/fgit.${_EXT}
 }
 
-go_build linux .linux
-go_build darwin .darwin
-go_build windows .exe
+go_build linux
+go_build darwin
+go_build windows
 
 rm ${INSTRUMENT_SRC_PUB}
 mv ${INSTRUMENT_SRC_PUB_BACKUP} ${INSTRUMENT_SRC_PUB}
