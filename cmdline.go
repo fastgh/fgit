@@ -17,14 +17,14 @@ const (
 
 // CommandLineT ...
 type CommandLineT struct {
-	GitCommand               string
-	GitRemoteName            string
-	IsGitClone               bool
-	GitURLText               string
-	ArgIndexOfGitURLText     int
-	PerhapsNeedProxyOrMirror bool
-	IsPrivate                *bool
-	Args                     []string
+	GitCommand            string
+	GitRemoteName         string
+	IsGitClone            bool
+	GitURLText            string
+	ArgIndexOfGitURLText  int
+	PerhapsNeedInstrument bool
+	IsPrivate             *bool
+	Args                  []string
 }
 
 // CommandLine ...
@@ -55,14 +55,14 @@ func ParseCommandLine() CommandLine {
 	valueFalse := false
 
 	r := &CommandLineT{
-		GitCommand:               "",
-		GitRemoteName:            "",
-		IsGitClone:               false,
-		GitURLText:               "",
-		ArgIndexOfGitURLText:     -1,
-		PerhapsNeedProxyOrMirror: false,
-		IsPrivate:                &valueFalse,
-		Args:                     []string{},
+		GitCommand:            "",
+		GitRemoteName:         "",
+		IsGitClone:            false,
+		GitURLText:            "",
+		ArgIndexOfGitURLText:  -1,
+		PerhapsNeedInstrument: false,
+		IsPrivate:             &valueFalse,
+		Args:                  []string{},
 	}
 
 	hasCmd := false
@@ -97,14 +97,14 @@ func ParseCommandLine() CommandLine {
 
 		if r.GitCommand == "clone" {
 			r.IsGitClone = true
-			r.PerhapsNeedProxyOrMirror = true
+			r.PerhapsNeedInstrument = true
 
 			if i < len(os.Args)-1 {
 				r.ArgIndexOfGitURLText = i + 1
 				r.GitURLText = os.Args[r.ArgIndexOfGitURLText]
 			}
 		} else if r.GitCommand == "pull" || r.GitCommand == "push" || r.GitCommand == "fetch" {
-			r.PerhapsNeedProxyOrMirror = true
+			r.PerhapsNeedInstrument = true
 			if i < len(os.Args)-1 {
 				r.GitRemoteName = os.Args[i+1]
 			}

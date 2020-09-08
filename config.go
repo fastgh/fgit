@@ -10,9 +10,9 @@ import (
 
 // ConfigT ...
 type ConfigT struct {
-	AccountID    string `json:"account-id"`
-	PublicMirror string `json:"public-mirror"`
-	PrivateProxy string `json:"private-proxy"`
+	AccountID string `json:"account-id"`
+	Mirror    string `json:"mirror"`
+	Proxy     string `json:"proxy"`
 }
 
 // Config ...

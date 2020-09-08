@@ -45,7 +45,7 @@ func main() {
 		fmt.Printf("Command line: \n%v\n", cmdline)
 	}
 
-	if cmdline.PerhapsNeedProxyOrMirror == false {
+	if cmdline.PerhapsNeedInstrument == false {
 		oldGit(false, false)
 		return
 	}
@@ -88,27 +88,5 @@ func main() {
 		fmt.Printf("Configuration: \n%v\n", cfg)
 	}
 
-	if isPrivate {
-		var global bool
-		if cmdline.IsGitClone {
-			global = true
-		} else {
-			global = false
-		}
-
-		//TODO: recover
-		oldHTTPProxy, oldHTTPSProxy := ConfigGitHTTPProxy(global, cfg.PrivateProxy, cfg.PrivateProxy)
-		oldGit(true, true)
-		ResetGitHTTPProxy(global, oldHTTPProxy, oldHTTPSProxy)
-	} else {
-		//TODO: recover
-		newCloneURL := InstrumentURLwithMirror(cmdline.GitURLText, cfg.PublicMirror)
-		if !cmdline.IsGitClone {
-			SetGitRemoteURL(cmdline.GitRemoteName, newCloneURL)
-		}
-
-		oldGit(true, true)
-		SetGitRemoteURL(cmdline.GitRemoteName, cmdline.GitURLText)
-	}
-
+	GithubInstrument(isPrivate, cfg)
 }
