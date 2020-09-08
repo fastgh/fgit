@@ -40,11 +40,6 @@ func ResetGitHTTPProxy(global bool, oldHTTPProxy, oldHTTPSProxy string) {
 	}
 }
 
-// SetGitRemoteURL ...
-func SetGitRemoteURL(remoteName string, remoteURL string) {
-	ExecGit([]string{"remote", "set-url", "origin", remoteURL})
-}
-
 // GithubInstrument ...GithubInstrument
 func GithubInstrument(isPrivate bool, config Config) {
 	var global bool
