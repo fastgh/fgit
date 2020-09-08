@@ -40,33 +40,18 @@ func ResetGitHTTPProxy(global bool, oldHTTPProxy, oldHTTPSProxy string) {
 	}
 }
 
-// SetGitRemoteURL ...
-func SetGitRemoteURL(remoteName string, remoteURL string) {
-	ExecGit([]string{"remote", "set-url", "origin", remoteURL})
-}
-
 // GithubInstrument ...GithubInstrument
 func GithubInstrument(isPrivate bool, config Config) {
-	if isPrivate {
-		var global bool
-		if cmdline.IsGitClone {
-			global = true
-		} else {
-			global = false
-		}
 
-		//TODO: recover
-		oldHTTPProxy, oldHTTPSProxy := ConfigGitHTTPProxy(global, config.Proxy, config.Proxy)
-		oldGit(true, true)
-		ResetGitHTTPProxy(global, oldHTTPProxy, oldHTTPSProxy)
+	var global bool
+	if cmdline.IsGitClone {
+		global = true
 	} else {
-		//TODO: recover
-		newCloneURL := InstrumentURLwithMirror(cmdline.GitURLText, config.Mirror)
-		if !cmdline.IsGitClone {
-			SetGitRemoteURL(cmdline.GitRemoteName, newCloneURL)
-		}
-
-		oldGit(true, true)
-		SetGitRemoteURL(cmdline.GitRemoteName, cmdline.GitURLText)
+		global = false
 	}
+
+	//TODO: recover
+	oldHTTPProxy, oldHTTPSProxy := ConfigGitHTTPProxy(global, config.Proxy, config.Proxy)
+	oldGit(true, true)
+	ResetGitHTTPProxy(global, oldHTTPProxy, oldHTTPSProxy)
 }
