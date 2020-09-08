@@ -1,7 +1,7 @@
 # NOT READY YET!
 
 # fgit
-GITHUB client wrapper, for Chinese developers, with fast access via transparent proxy
+Git client with built-in GITHUB proxy, 50x faster for Chinese developers
 
 ## Usage:
   Download the executable binary to $PATH. For ex., for Mac OSX,
