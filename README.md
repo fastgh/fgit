@@ -1,7 +1,7 @@
 # NOT READY YET!
 
 # fgit
-Git client with built-in GITHUB proxy, 50x faster for Chinese developers
+Git client with built-in GITHUB proxy, 50x faster for Chinese engineers.
 
 ## Download:
   For Windows, download https://github.com/fastgh/fgit/releases/download/v0.9.0/fgit.exe, save it to executive path.
