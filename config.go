@@ -24,7 +24,15 @@ func LoadConfig() Config {
 	if !FileExists(path) {
 		SaveConfigJSONFile(path, &ConfigT{})
 	}
-	return ConfigWithJSONFile(path)
+	r := ConfigWithJSONFile(path)
+
+	if len(r.Proxy) == 0 {
+		if len(r.Mirror) == 0 {
+			panic("proxy not configured")
+		}
+	}
+
+	return r
 }
 
 // ConfigWithJSONFile ...
