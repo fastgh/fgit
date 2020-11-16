@@ -65,6 +65,14 @@ func main() {
 		fmt.Printf("GitURLText: %s, gitURL=%v\n", cmdline.GitURLText, gitURL)
 	}
 
+	if strings.ToLower(gitURL.Scheme) != "https" {
+		if Debug {
+			fmt.Println("not https")
+		}
+		oldGit(false, false)
+		return
+	}
+
 	if strings.ToLower(gitURL.Host) != "github.com" {
 		if Debug {
 			fmt.Println("not github.com")
