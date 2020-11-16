@@ -28,7 +28,8 @@ func LoadConfig() Config {
 
 	if len(r.Proxy) == 0 {
 		if len(r.Mirror) == 0 {
-			panic("proxy not configured")
+			r.Proxy = "http://fastgithub.com:7777"
+			//panic("proxy not configured")
 		}
 	}
 
