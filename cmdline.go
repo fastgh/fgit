@@ -13,7 +13,7 @@ import (
 
 const (
 	// AppVersion ...
-	AppVersion = "0.9.0"
+	AppVersion = "1.0.0"
 )
 
 // CommandLineT ...
@@ -40,7 +40,7 @@ func PrintHelp(errorMode bool) {
 	} else {
 		c = color.Blue
 	}
-	c.Printf("fgit: version %s. Git client with built-in GITHUB proxy, 50x faster for Chinese developers.\n", AppVersion)
+	c.Printf("fgit: version %s. Git client with built-in GITHUB proxy, 50x ~ 100x faster for Chinese developers.\n", AppVersion)
 }
 
 func (me CommandLine) String() string {

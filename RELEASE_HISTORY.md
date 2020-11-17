@@ -1,2 +1,5 @@
+v1.0.0
+  Release
+
 # v0.9.0
-  First release
+  First pre-release

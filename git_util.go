@@ -15,15 +15,22 @@ func ConfigGitHTTPProxy(workDir string, global bool, newHTTPProxy, newHTTPSProxy
 	var scope string
 	if global {
 		scope = "--global"
+		workDir = ""
 	} else {
 		scope = "--local"
 	}
 
-	ExecGit(workDir, []string{"config", scope, "--set", "http.https://github.com.proxy", newHTTPProxy})
-	ExecGit(workDir, []string{"config", scope, "--set", "https.https://github.com.proxy", newHTTPSProxy})
-
 	oldHTTPProxy = ExecGit(workDir, []string{"config", scope, "--get", "http.https://github.com.proxy"})
+	if strings.Index(oldHTTPProxy, "exit") >= 0 {
+		oldHTTPProxy = ""
+	}
 	oldHTTPSProxy = ExecGit(workDir, []string{"config", scope, "--get", "https.https://github.com.proxy"})
+	if strings.Index(oldHTTPSProxy, "exit") >= 0 {
+		oldHTTPSProxy = ""
+	}
+
+	ExecGit(workDir, []string{"config", scope, "http.https://github.com.proxy", newHTTPProxy})
+	ExecGit(workDir, []string{"config", scope, "https.https://github.com.proxy", newHTTPSProxy})
 
 	return
 }
@@ -36,15 +43,14 @@ func ResetGitHTTPProxy(workDir string, global bool, oldHTTPProxy, oldHTTPSProxy 
 	} else {
 		scope = "--local"
 	}
-
 	if len(oldHTTPProxy) > 0 {
-		ExecGit(workDir, []string{"config", scope, "--set", "http.https://github.com.proxy", oldHTTPProxy})
+		ExecGit(workDir, []string{"config", scope, "http.https://github.com.proxy", oldHTTPProxy})
 	} else {
 		ExecGit(workDir, []string{"config", scope, "--unset-all", "http.https://github.com.proxyy"})
 	}
 
 	if len(oldHTTPSProxy) > 0 {
-		ExecGit(workDir, []string{"config", scope, "--set", "https.https://github.com.proxy", oldHTTPSProxy})
+		ExecGit(workDir, []string{"config", scope, "https.https://github.com.proxy", oldHTTPSProxy})
 	} else {
 		ExecGit(workDir, []string{"config", scope, "--unset-all", "https.https://github.com.proxy"})
 	}
@@ -99,7 +105,9 @@ func ExecGit(workDir string, args []string) string {
 	}
 
 	var command = exec.Command("git", args...)
-	command.Dir = workDir
+	if len(workDir) > 0 {
+		command.Dir = workDir
+	}
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
 	var err = command.Start()
