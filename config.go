@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"path/filepath"
 
 	"github.com/mitchellh/go-homedir"
@@ -28,7 +29,8 @@ func LoadConfig() Config {
 
 	if len(r.Proxy) == 0 {
 		if len(r.Mirror) == 0 {
-			r.Proxy = "http://fastgithub.com:7777"
+			proxy := SelectProxy()
+			r.Proxy = fmt.Sprintf("%s://%s:%d", proxy.Protocol, proxy.Host, proxy.Port)
 			//panic("proxy not configured")
 		}
 	}

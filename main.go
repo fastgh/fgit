@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/gookit/color"
 )
@@ -37,6 +39,9 @@ func oldGit(fgitHelpFirst bool, errorMode bool) {
 }
 
 func main() {
+
+	rand.Seed(time.Now().UnixNano())
+
 	//TODO: recover
 
 	cmdline = ParseCommandLine()
