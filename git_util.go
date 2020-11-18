@@ -72,6 +72,24 @@ func ResolveGitURLText(gitURLText string, remoteName string, isGitClone bool) st
 	return gitURLText
 }
 
+// ResolveGitRemoteName ...
+func ResolveGitRemoteName(workDir string) string {
+	r := ExecGit(workDir, []string{"remote"})
+	r = strings.Trim(r, "\n\r\t ")
+
+	posOfReturn := strings.Index(r, "\n")
+	if posOfReturn > 0 {
+		r = r[0:posOfReturn]
+	}
+
+	posOfReturn = strings.Index(r, "\r")
+	if posOfReturn > 0 {
+		r = r[0:posOfReturn]
+	}
+
+	return r
+}
+
 // ResolveGitURL ...
 func ResolveGitURL(gitURLText string) *url.URL {
 	var err error

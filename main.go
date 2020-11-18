@@ -71,7 +71,6 @@ func main() {
 		}
 	}()
 
-	Cmdline.GitURLText = ResolveGitURLText(Cmdline.GitURLText, Cmdline.GitRemoteName, Cmdline.IsGitClone)
 	gitURL := ResolveGitURL(Cmdline.GitURLText)
 
 	if Debug {
