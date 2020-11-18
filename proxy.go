@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
@@ -15,6 +16,10 @@ type ProxyServerInfoT struct {
 	Host     string `json:"host"`
 	Port     int    `json:"port"`
 	Weight   int    `json:"Weight"`
+
+	VersionMajor int `json:"versionMajor"`
+	VersionMinor int `json:"versionMinor"`
+	VersionFix   int `json:"versionFix"`
 }
 
 // ProxyServerInfo ...
@@ -44,5 +49,13 @@ func SelectProxy() ProxyServerInfo {
 		return nil
 	}
 
-	return proxies[rand.Intn(len(proxies))]
+	r := proxies[rand.Intn(len(proxies))]
+	if r.VersionMajor != VersionMajor {
+		panic(fmt.Errorf("当前的fgit客户端版本是%d.%d.%d。该版本和服务器要求的版本%d.%d.%d不兼容。请在https://github.com/fastgh/fgit/releases重新下载",
+			VersionMajor, VersionMinor, VersionFix,
+			r.VersionMajor, r.VersionMinor, r.VersionFix,
+		))
+	}
+
+	return r
 }

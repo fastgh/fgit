@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/google/uuid"
 	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 )
@@ -23,7 +24,13 @@ type Config = *ConfigT
 func LoadConfig() Config {
 	path := GetConfigJSONFilePath()
 	if !FileExists(path) {
-		SaveConfigJSONFile(path, &ConfigT{})
+		accountID, err := uuid.NewUUID()
+		if err != nil {
+			panic(errors.Wrap(err, "failed to generate account id"))
+		}
+		SaveConfigJSONFile(path, &ConfigT{
+			AccountID: accountID.String(),
+		})
 	}
 	r := ConfigWithJSONFile(path)
 
