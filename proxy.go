@@ -1,9 +1,9 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"math/rand"
 	"net/http"
 
@@ -27,18 +27,27 @@ type ProxyServerInfo = *ProxyServerInfoT
 
 // FetchAvailableProxies ...
 func FetchAvailableProxies() []ProxyServerInfo {
-	resp, err := http.Get("http://control.fastgithub.com:7000/api/v1/proxies")
-	if err != nil {
-		panic(errors.Wrap(err, "failed to fetch available proxies"))
+	controlServerURL := "http://control.fastgithub.com:7000/api/v1/proxies?type=github.com"
+
+	if Debug {
+		log.Printf("正在查询可用的代理服务器: %s\n", controlServerURL)
 	}
+
+	resp, err := http.Get(controlServerURL)
+	if err != nil {
+		panic(errors.Wrap(err, "查询可用的代理服务器时失败"))
+	}
+
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 
 	var r []ProxyServerInfo
-	err = json.Unmarshal(body, &r)
-	if err != nil {
-		panic(errors.Wrapf(err, "failed to parse proxy list. got: %s", string(body)))
+	JSONUnmarshal(string(body), &r)
+
+	if Debug {
+		log.Printf("查询到可用的代理服务器: %v\n", r)
 	}
+
 	return r
 }
 
@@ -46,6 +55,9 @@ func FetchAvailableProxies() []ProxyServerInfo {
 func SelectProxy() ProxyServerInfo {
 	proxies := FetchAvailableProxies()
 	if proxies == nil || len(proxies) == 0 {
+		if Debug {
+			log.Println("没有可用的代理服务器")
+		}
 		return nil
 	}
 
@@ -55,6 +67,10 @@ func SelectProxy() ProxyServerInfo {
 			VersionMajor, VersionMinor, VersionFix,
 			r.VersionMajor, r.VersionMinor, r.VersionFix,
 		))
+	}
+
+	if Debug {
+		log.Printf("使用代理服务器: %v\n", r)
 	}
 
 	return r

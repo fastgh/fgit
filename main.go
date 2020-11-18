@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"os"
 	"os/signal"
@@ -49,11 +50,14 @@ func main() {
 
 	cmdline = ParseCommandLine()
 	if Debug {
-		fmt.Printf("Mock: %v\n", Mock)
-		fmt.Printf("Command line: \n%v\n", cmdline)
+		log.Printf("Mock: %v\n", Mock)
+		log.Printf("命令行: \n%v\n", cmdline)
 	}
 
 	if cmdline.PerhapsNeedInstrument == false {
+		if Debug {
+			log.Println("无需设置代理")
+		}
 		oldGit(false, false)
 		return
 	}
@@ -61,7 +65,7 @@ func main() {
 	defer func() {
 		if p := recover(); p != nil {
 			oldGit(false, true)
-			color.Red.Printf("error: %v\n", p)
+			color.Red.Printf("出错: %v\n", p)
 			return
 		}
 	}()
@@ -70,21 +74,19 @@ func main() {
 	gitURL := ResolveGitURL(cmdline.GitURLText)
 
 	if Debug {
-		fmt.Printf("GitURLText: %s, gitURL=%v\n", cmdline.GitURLText, gitURL)
+		log.Printf("GitURLText: %s, gitURL=%v\n", cmdline.GitURLText, gitURL)
 	}
 
-	if strings.ToLower(gitURL.Scheme) != "https" {
+	if strings.ToLower(gitURL.Host) != "github.com" {
 		if Debug {
-			fmt.Println("not https")
+			log.Println("not github.com, so skipped")
 		}
 		oldGit(false, false)
 		return
 	}
 
-	if strings.ToLower(gitURL.Host) != "github.com" {
-		if Debug {
-			fmt.Println("not github.com")
-		}
+	if strings.ToLower(gitURL.Scheme) != "https" {
+		fmt.Printf("不支持%s (仅支持https)\n", gitURL.Scheme)
 		oldGit(false, false)
 		return
 	}
@@ -96,11 +98,14 @@ func main() {
 		isPrivate = true
 
 		if Debug {
-			fmt.Println("set private=true because detected user name in url")
+			log.Println("发现URL中嵌入有用户名，因此设置为私有库模式")
 		}
 	}
 
 	cfg := LoadConfig()
+	if Debug {
+		log.Printf("配置：%v\n", cfg)
+	}
 
 	HookInterruptSignal()
 
@@ -110,23 +115,28 @@ func main() {
 // HookInterruptSignal ...
 func HookInterruptSignal() {
 	signalChan := make(chan os.Signal, 1)
+
 	signal.Notify(signalChan,
 		os.Interrupt,
 		syscall.SIGHUP,
 		syscall.SIGINT,
 		syscall.SIGTERM,
 		syscall.SIGQUIT)
+
 	go func() {
 		defer func() {
 			if e := recover(); e != nil {
-				fmt.Printf("crashed, err: %s\nstack:\n%s", e, string(debug.Stack()))
+				fmt.Printf("程序崩溃, 错误原因: %s\n堆栈:\n%s", e, string(debug.Stack()))
 			}
 		}()
 		for range signalChan {
 			if Debug {
-				fmt.Println("Received an interrupt, stopping then...")
+				log.Println("收到中断信号，退出前恢复原先的GITHUB设置...")
 			}
 			oldGit(false, true)
+			if Debug {
+				log.Println("完成恢复原先的GITHUB设置")
+			}
 			os.Exit(0)
 		}
 	}()

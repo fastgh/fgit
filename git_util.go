@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/url"
 	"os"
 	"os/exec"
@@ -65,7 +66,7 @@ func ResolveGitURLText(gitURLText string, remoteName string, isGitClone bool) st
 	}
 
 	if len(gitURLText) == 0 {
-		panic(errors.New("cannot resolve git url"))
+		panic(fmt.Sprintf("获取GIT URL失败: %s", gitURLText))
 	}
 
 	return gitURLText
@@ -77,11 +78,7 @@ func ResolveGitURL(gitURLText string) *url.URL {
 	var r *url.URL
 
 	if r, err = url.Parse(gitURLText); err != nil {
-		panic(errors.Wrapf(err, "failed to parse url: %s", gitURLText))
-	}
-
-	if strings.ToLower(r.Scheme) != "https" {
-		panic(fmt.Errorf("only https is supported but got: %s", r.Scheme))
+		panic(errors.Wrapf(err, "解析URL失败: %s", gitURLText))
 	}
 
 	return r
@@ -96,11 +93,11 @@ func GetGitRemoteURL(workDir string, remoteName string) string {
 // ExecGit ...
 func ExecGit(workDir string, args []string) string {
 	if Debug {
-		fmt.Println("git " + strings.Join(args, " "))
+		log.Println("git cli: " + strings.Join(args, " "))
 	}
 
 	if Mock {
-		fmt.Println("mocking run: git " + strings.Join(args, " "))
+		log.Println("mocking run: git " + strings.Join(args, " "))
 		return ""
 	}
 

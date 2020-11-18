@@ -1,8 +1,8 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
+	"log"
 	"path/filepath"
 
 	"github.com/google/uuid"
@@ -23,10 +23,11 @@ type Config = *ConfigT
 // LoadConfig ...
 func LoadConfig() Config {
 	path := GetConfigJSONFilePath()
+
 	if !FileExists(path) {
 		accountID, err := uuid.NewUUID()
 		if err != nil {
-			panic(errors.Wrap(err, "failed to generate account id"))
+			panic(errors.Wrap(err, "生成账号ID失败"))
 		}
 		SaveConfigJSONFile(path, &ConfigT{
 			AccountID: accountID.String(),
@@ -53,19 +54,14 @@ func ConfigWithJSONFile(path string) Config {
 
 // SaveConfigJSONFile ...
 func SaveConfigJSONFile(path string, config Config) {
-	jsonText, err := json.Marshal(config)
-	if err != nil {
-		panic(errors.Wrapf(err, "failed to marshal json: %v\n", jsonText))
-	}
+	jsonText := JSONPretty(config)
 	WriteFile(path, []byte(jsonText))
 }
 
 // ConfigWithJSON ...
 func ConfigWithJSON(jsonText string) Config {
 	r := &ConfigT{}
-	if err := json.Unmarshal([]byte(jsonText), &r); err != nil {
-		panic(errors.Wrapf(err, "failed to unmarshal json: %s\n"+jsonText))
-	}
+	JSONUnmarshal(jsonText, &r)
 	return r
 }
 
@@ -73,8 +69,13 @@ func ConfigWithJSON(jsonText string) Config {
 func GetConfigJSONFilePath() string {
 	dir, err := homedir.Dir()
 	if err != nil {
-		panic(errors.Wrapf(err, "failed to get home dir"))
+		panic(errors.Wrapf(err, "无法获取用户主目录路径"))
 	}
 
-	return filepath.Join(dir, ".fgit.json")
+	r := filepath.Join(dir, ".fgit.json")
+	if Debug {
+		log.Printf("配置文件：%s", r)
+	}
+
+	return r
 }

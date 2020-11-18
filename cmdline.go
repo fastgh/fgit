@@ -1,14 +1,10 @@
 package main
 
 import (
-	"encoding/json"
 	"os"
 	"strings"
 
-	"net/url"
-
 	"github.com/gookit/color"
-	"github.com/pkg/errors"
 )
 
 const (
@@ -46,15 +42,11 @@ func PrintHelp(errorMode bool) {
 	} else {
 		c = color.Blue
 	}
-	c.Printf("fgit: version %d.%d.%d - Git client with built-in GITHUB proxy, 50x ~ 100x faster for Chinese developers.\n", VersionMajor, VersionMinor, VersionFix)
+	c.Printf("fgit %d.%d.%d - 让中国开发者git clone https://github.com提速100倍.\n", VersionMajor, VersionMinor, VersionFix)
 }
 
 func (me CommandLine) String() string {
-	json, err := json.MarshalIndent(me, "", "  ")
-	if err != nil {
-		panic(errors.Wrapf(err, "failed to json mashal"))
-	}
-	return string(json)
+	return JSONPretty(me)
 }
 
 // ParseCommandLine ...
@@ -128,25 +120,4 @@ func ParseCommandLine() CommandLine {
 	}
 
 	return r
-}
-
-// InstrumentURLwithMirror ...
-func InstrumentURLwithMirror(gitURLText string, mirrorURLText string) string {
-	var err error
-
-	var mirrorURL *url.URL
-	if mirrorURL, err = url.Parse(mirrorURLText); err != nil {
-		panic(errors.Wrapf(err, "failed to parse url: %s", mirrorURLText))
-	}
-
-	var gitURL *url.URL
-	if gitURL, err = url.Parse(gitURLText); err != nil {
-		panic(errors.Wrapf(err, "failed to parse url: %s", gitURLText))
-	}
-
-	gitURL.Scheme = mirrorURL.Scheme
-	gitURL.Host = mirrorURL.Host
-	gitURL.User = mirrorURL.User
-
-	return gitURL.String()
 }
