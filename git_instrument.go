@@ -44,7 +44,7 @@ func GithubInstrument(isPrivate bool, config Config) {
 
 	defer ResetGithubRemote()
 
-	if instrumentContext.useMirror {
+	if instrumentContext.UseMirror {
 		if Debug {
 			log.Println("[fgit] 设置镜像")
 		}
