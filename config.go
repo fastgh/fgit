@@ -36,11 +36,12 @@ func LoadConfig() Config {
 	r := ConfigWithJSONFile(path)
 
 	if len(r.Proxy) == 0 {
-		if len(r.Mirror) == 0 {
-			proxy := SelectProxy()
-			r.Proxy = fmt.Sprintf("%s://%s:na@%s:%d", r.AccountID, proxy.Protocol, proxy.Host, proxy.Port)
-			//panic("proxy not configured")
-		}
+		proxy := SelectProxy()
+		r.Proxy = fmt.Sprintf("%s://%s:na@%s:%d", proxy.Protocol, r.AccountID, proxy.Host, proxy.Port)
+	}
+
+	if len(r.Mirror) == 0 {
+		r.Mirror = "github.com.cnpmjs.org"
 	}
 
 	return r
@@ -74,7 +75,7 @@ func GetConfigJSONFilePath() string {
 
 	r := filepath.Join(dir, ".fgit.json")
 	if Debug {
-		log.Printf("配置文件：%s", r)
+		log.Printf("[fgit] 配置文件：%s", r)
 	}
 
 	return r

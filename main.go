@@ -14,10 +14,11 @@ import (
 	"github.com/gookit/color"
 )
 
-var cmdline CommandLine
+// Cmdline ...
+var Cmdline CommandLine
 
 func oldGit(fgitHelpFirst bool, errorMode bool) {
-	if cmdline == nil {
+	if Cmdline == nil {
 		fgitHelpFirst = false
 	}
 
@@ -25,16 +26,16 @@ func oldGit(fgitHelpFirst bool, errorMode bool) {
 		PrintHelp(errorMode)
 		fmt.Println()
 
-		if cmdline == nil {
+		if Cmdline == nil {
 			ExecGit("", os.Args[1:])
 		} else {
-			ExecGit("", cmdline.Args)
+			ExecGit("", Cmdline.Args)
 		}
 	} else {
-		if cmdline == nil {
+		if Cmdline == nil {
 			ExecGit("", os.Args[1:])
 		} else {
-			ExecGit("", cmdline.Args)
+			ExecGit("", Cmdline.Args)
 		}
 
 		fmt.Println()
@@ -48,15 +49,15 @@ func main() {
 
 	//TODO: recover
 
-	cmdline = ParseCommandLine()
+	Cmdline = ParseCommandLine()
 	if Debug {
-		log.Printf("Mock: %v\n", Mock)
-		log.Printf("命令行: \n%v\n", cmdline)
+		log.Printf("[fgit] Mock: %v\n", Mock)
+		log.Printf("[fgit] 命令行: \n%s\n", JSONPretty(Cmdline))
 	}
 
-	if cmdline.PerhapsNeedInstrument == false {
+	if Cmdline.PerhapsNeedInstrument == false {
 		if Debug {
-			log.Println("无需设置代理")
+			log.Println("[fgit] 无需设置代理")
 		}
 		oldGit(false, false)
 		return
@@ -64,47 +65,47 @@ func main() {
 
 	defer func() {
 		if p := recover(); p != nil {
-			oldGit(false, true)
-			color.Red.Printf("出错: %v\n", p)
+			color.Red.Printf("[fgit] 出错: %v\n", p)
+			ResetGithubRemote()
 			return
 		}
 	}()
 
-	cmdline.GitURLText = ResolveGitURLText(cmdline.GitURLText, cmdline.GitRemoteName, cmdline.IsGitClone)
-	gitURL := ResolveGitURL(cmdline.GitURLText)
+	Cmdline.GitURLText = ResolveGitURLText(Cmdline.GitURLText, Cmdline.GitRemoteName, Cmdline.IsGitClone)
+	gitURL := ResolveGitURL(Cmdline.GitURLText)
 
 	if Debug {
-		log.Printf("GitURLText: %s, gitURL=%v\n", cmdline.GitURLText, gitURL)
+		log.Printf("[fgit] GitURLText: %s, gitURL=%s\n", Cmdline.GitURLText, JSONMarshal(gitURL))
 	}
 
 	if strings.ToLower(gitURL.Host) != "github.com" {
 		if Debug {
-			log.Println("not github.com, so skipped")
+			log.Println("[fgit] 不是github.com库，跳过")
 		}
 		oldGit(false, false)
 		return
 	}
 
 	if strings.ToLower(gitURL.Scheme) != "https" {
-		fmt.Printf("不支持%s (仅支持https)\n", gitURL.Scheme)
+		color.Yellow.Printf("[fgit] 不支持%s (仅支持https)\n", gitURL.Scheme)
 		oldGit(false, false)
 		return
 	}
 
 	var isPrivate bool
-	if cmdline.IsPrivate != nil {
-		isPrivate = *cmdline.IsPrivate
+	if Cmdline.IsPrivate != nil {
+		isPrivate = *Cmdline.IsPrivate
 	} else if len(gitURL.User.Username()) > 0 {
 		isPrivate = true
 
 		if Debug {
-			log.Println("发现URL中嵌入有用户名，因此设置为私有库模式")
+			log.Println("[fgit] 发现URL中嵌入有用户名，因此设置为私有库模式")
 		}
 	}
 
 	cfg := LoadConfig()
 	if Debug {
-		log.Printf("配置：%v\n", cfg)
+		log.Printf("[fgit] 配置：\n%s\n", JSONPretty(cfg))
 	}
 
 	HookInterruptSignal()
@@ -126,16 +127,16 @@ func HookInterruptSignal() {
 	go func() {
 		defer func() {
 			if e := recover(); e != nil {
-				fmt.Printf("程序崩溃, 错误原因: %s\n堆栈:\n%s", e, string(debug.Stack()))
+				color.Red.Printf("[fgit] 程序崩溃, 错误原因: %s\n堆栈:\n%s", e, string(debug.Stack()))
 			}
 		}()
 		for range signalChan {
 			if Debug {
-				log.Println("收到中断信号，退出前恢复原先的GITHUB设置...")
+				log.Println("[fgit] 收到中断信号，退出前恢复原先的GITHUB设置...")
 			}
-			oldGit(false, true)
+			ResetGithubRemote()
 			if Debug {
-				log.Println("完成恢复原先的GITHUB设置")
+				log.Println("[fgit] 完成恢复原先的GITHUB设置")
 			}
 			os.Exit(0)
 		}

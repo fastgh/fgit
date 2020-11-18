@@ -56,7 +56,7 @@ func ParseCommandLine() CommandLine {
 
 	r := &CommandLineT{
 		GitCommand:            "",
-		GitRemoteName:         "",
+		GitRemoteName:         "origin",
 		IsGitClone:            false,
 		GitCloneDir:           "",
 		GitURLText:            "",

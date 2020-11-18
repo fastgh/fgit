@@ -36,8 +36,8 @@ func ConfigGitHTTPProxy(workDir string, global bool, newHTTPProxy, newHTTPSProxy
 	return
 }
 
-// ResetGitHTTPProxy ...
-func ResetGitHTTPProxy(workDir string, global bool, oldHTTPProxy, oldHTTPSProxy string) {
+// SetGitHTTPProxy ...
+func SetGitHTTPProxy(workDir string, global bool, oldHTTPProxy, oldHTTPSProxy string) {
 	var scope string
 	if global {
 		scope = "--global"
@@ -87,17 +87,22 @@ func ResolveGitURL(gitURLText string) *url.URL {
 
 // GetGitRemoteURL ...
 func GetGitRemoteURL(workDir string, remoteName string) string {
-	return ExecGit(workDir, []string{"remote", "get-url", "origin"})
+	return ExecGit(workDir, []string{"remote", "get-url", remoteName})
+}
+
+// SetGitRemoteURL ...
+func SetGitRemoteURL(workDir string, remoteName string, remoteUrl string) {
+	ExecGit(workDir, []string{"remote", "set-url", remoteName, remoteUrl})
 }
 
 // ExecGit ...
 func ExecGit(workDir string, args []string) string {
 	if Debug {
-		log.Println("git cli: " + strings.Join(args, " "))
+		log.Println("[fgit] git cli: " + strings.Join(args, " "))
 	}
 
 	if Mock {
-		log.Println("mocking run: git " + strings.Join(args, " "))
+		log.Println("[fgit] mocking run: git " + strings.Join(args, " "))
 		return ""
 	}
 

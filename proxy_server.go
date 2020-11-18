@@ -30,7 +30,7 @@ func FetchAvailableProxies() []ProxyServerInfo {
 	controlServerURL := "http://control.fastgithub.com:7000/api/v1/proxies?type=github.com"
 
 	if Debug {
-		log.Printf("正在查询可用的代理服务器: %s\n", controlServerURL)
+		log.Printf("[fgit] 正在查询可用的代理服务器: %s\n", controlServerURL)
 	}
 
 	resp, err := http.Get(controlServerURL)
@@ -45,7 +45,7 @@ func FetchAvailableProxies() []ProxyServerInfo {
 	JSONUnmarshal(string(body), &r)
 
 	if Debug {
-		log.Printf("查询到可用的代理服务器: %v\n", r)
+		log.Printf("[fgit] 查询到可用的代理服务器: \n%s\n", JSONPretty(r))
 	}
 
 	return r
@@ -56,7 +56,7 @@ func SelectProxy() ProxyServerInfo {
 	proxies := FetchAvailableProxies()
 	if proxies == nil || len(proxies) == 0 {
 		if Debug {
-			log.Println("没有可用的代理服务器")
+			log.Println("[fgit] 没有可用的代理服务器")
 		}
 		return nil
 	}
@@ -70,7 +70,7 @@ func SelectProxy() ProxyServerInfo {
 	}
 
 	if Debug {
-		log.Printf("使用代理服务器: %v\n", r)
+		log.Printf("[fgit] 使用代理服务器: \n%s\n", JSONPretty(r))
 	}
 
 	return r
