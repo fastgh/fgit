@@ -42,7 +42,7 @@ func PrintHelp(errorMode bool) {
 	} else {
 		c = color.Blue
 	}
-	c.Printf("fgit %d.%d.%d - 让中国开发者git clone https://github.com提速100倍.\n", VersionMajor, VersionMinor, VersionFix)
+	c.Printf("fgit %d.%d.%d - 让中国开发者git clone https://github.com时提速100倍。\n", VersionMajor, VersionMinor, VersionFix)
 }
 
 func (me CommandLine) String() string {
