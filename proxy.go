@@ -22,7 +22,7 @@ type ProxyServerInfo = *ProxyServerInfoT
 
 // FetchAvailableProxies ...
 func FetchAvailableProxies() []ProxyServerInfo {
-	resp, err := http.Get("http://fastgithub.com:7000")
+	resp, err := http.Get("http://control.fastgithub.com:7000/api/v1/proxies")
 	if err != nil {
 		panic(errors.Wrap(err, "failed to fetch available proxies"))
 	}
