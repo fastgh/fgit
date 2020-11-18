@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"os/signal"
+	"runtime/debug"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/gookit/color"
@@ -98,5 +101,33 @@ func main() {
 	}
 
 	cfg := LoadConfig()
+
+	HookInterruptSignal()
+
 	GithubInstrument(isPrivate, cfg)
+}
+
+// HookInterruptSignal ...
+func HookInterruptSignal() {
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan,
+		os.Interrupt,
+		syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGTERM,
+		syscall.SIGQUIT)
+	go func() {
+		defer func() {
+			if e := recover(); e != nil {
+				fmt.Printf("crashed, err: %s\nstack:\n%s", e, string(debug.Stack()))
+			}
+		}()
+		for range signalChan {
+			if Debug {
+				fmt.Println("Received an interrupt, stopping then...")
+			}
+			oldGit(false, true)
+			os.Exit(0)
+		}
+	}()
 }

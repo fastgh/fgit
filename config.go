@@ -37,7 +37,7 @@ func LoadConfig() Config {
 	if len(r.Proxy) == 0 {
 		if len(r.Mirror) == 0 {
 			proxy := SelectProxy()
-			r.Proxy = fmt.Sprintf("%s://%s:%d", proxy.Protocol, proxy.Host, proxy.Port)
+			r.Proxy = fmt.Sprintf("%s://%s:na@%s:%d", r.AccountID, proxy.Protocol, proxy.Host, proxy.Port)
 			//panic("proxy not configured")
 		}
 	}
