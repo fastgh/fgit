@@ -54,7 +54,11 @@ func GithubInstrument(isPrivate bool, config Config) {
 
 		instrumentContext.RemoteName = Cmdline.GitRemoteName
 
-		SetGitRemoteURL(instrumentContext.WorkDir, instrumentContext.RemoteName, instrumentContext.MirroredURL)
+		if Cmdline.IsGitClone {
+			Cmdline.Args[Cmdline.ArgIndexOfGitURLText-1] = instrumentContext.MirroredURL
+		} else {
+			SetGitRemoteURL(instrumentContext.WorkDir, instrumentContext.RemoteName, instrumentContext.MirroredURL)
+		}
 	} else {
 		if Debug {
 			log.Println("[fgit] 设置代理")

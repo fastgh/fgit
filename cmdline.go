@@ -110,6 +110,12 @@ func ParseCommandLine() CommandLine {
 				r.IsPrivate = &valueTrue
 			}
 		}
+
+		if arg == "-o" || arg == "--origin" {
+			if i < len(os.Args)-1 {
+				r.GitRemoteName = os.Args[i+1]
+			}
+		}
 	}
 
 	if r.IsGitClone && len(r.GitCloneDir) == 0 {
