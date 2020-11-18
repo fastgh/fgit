@@ -35,13 +35,11 @@ func LoadConfig() Config {
 	}
 	r := ConfigWithJSONFile(path)
 
-	if len(r.Proxy) == 0 {
-		proxy := SelectProxy()
-		r.Proxy = fmt.Sprintf("%s://%s:na@%s:%d", proxy.Protocol, r.AccountID, proxy.Host, proxy.Port)
-	}
+	proxy := SelectProxy()
+	r.Proxy = fmt.Sprintf("%s://%s:%s@%s:%d", proxy.Protocol, r.AccountID, "NA", proxy.Host, proxy.Port)
 
 	if len(r.Mirror) == 0 {
-		r.Mirror = "github.com.cnpmjs.org"
+		r.Mirror = "https://github.com.cnpmjs.org"
 	}
 
 	return r

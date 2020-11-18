@@ -9,15 +9,15 @@ import (
 
 // InstrumentContext ...
 type InstrumentContext struct {
-	oldHTTPProxy  string
-	oldHTTPSProxy string
-	useMirror     bool
-	workDir       string
-	global        bool
-	shouldReset   bool
-	mirroredURL   string
-	originalURL   string
-	remoteName    string
+	OldHTTPProxy  string
+	OldHTTPSProxy string
+	UseMirror     bool
+	WorkDir       string
+	Global        bool
+	ShouldReset   bool
+	MirroredURL   string
+	OriginalURL   string
+	RemoteName    string
 }
 
 var instrumentContext = InstrumentContext{}
@@ -25,17 +25,17 @@ var instrumentContext = InstrumentContext{}
 // GithubInstrument ...GithubInstrument
 func GithubInstrument(isPrivate bool, config Config) {
 	if isPrivate {
-		instrumentContext.useMirror = false
+		instrumentContext.UseMirror = false
 	} else {
-		instrumentContext.useMirror = true
+		instrumentContext.UseMirror = true
 	}
 
 	if Cmdline.IsGitClone {
-		instrumentContext.global = true
-		instrumentContext.workDir = Cmdline.GitCloneDir
+		instrumentContext.Global = true
+		instrumentContext.WorkDir = Cmdline.GitCloneDir
 	} else {
-		instrumentContext.global = false
-		instrumentContext.workDir = ""
+		instrumentContext.Global = false
+		instrumentContext.WorkDir = ""
 	}
 
 	if Debug {
@@ -49,19 +49,19 @@ func GithubInstrument(isPrivate bool, config Config) {
 			log.Println("[fgit] 设置镜像")
 		}
 
-		instrumentContext.originalURL = Cmdline.GitURLText
-		instrumentContext.mirroredURL = GeneratedMirroredURL(instrumentContext.originalURL, config.Mirror)
+		instrumentContext.OriginalURL = Cmdline.GitURLText
+		instrumentContext.MirroredURL = GeneratedMirroredURL(instrumentContext.OriginalURL, config.Mirror)
 
-		instrumentContext.remoteName = Cmdline.GitRemoteName
+		instrumentContext.RemoteName = Cmdline.GitRemoteName
 
-		SetGitRemoteURL(instrumentContext.workDir, instrumentContext.remoteName, instrumentContext.mirroredURL)
+		SetGitRemoteURL(instrumentContext.WorkDir, instrumentContext.RemoteName, instrumentContext.MirroredURL)
 	} else {
 		if Debug {
 			log.Println("[fgit] 设置代理")
 		}
-		instrumentContext.oldHTTPProxy, instrumentContext.oldHTTPSProxy = ConfigGitHTTPProxy(instrumentContext.workDir, instrumentContext.global, config.Proxy, config.Proxy)
+		instrumentContext.OldHTTPProxy, instrumentContext.OldHTTPSProxy = ConfigGitHTTPProxy(instrumentContext.WorkDir, instrumentContext.Global, config.Proxy, config.Proxy)
 	}
-	instrumentContext.shouldReset = true
+	instrumentContext.ShouldReset = true
 
 	if Debug {
 		log.Printf("[fgit] 修改后: %s\n", JSONPretty(instrumentContext))
@@ -76,17 +76,17 @@ func ResetGithubRemote() {
 		log.Printf("[fgit] 重置修改: %s\n", JSONPretty(instrumentContext))
 	}
 
-	if instrumentContext.shouldReset {
-		if instrumentContext.useMirror {
+	if instrumentContext.ShouldReset {
+		if instrumentContext.UseMirror {
 			if Debug {
 				log.Println("[fgit] 重置镜像")
 			}
-			SetGitRemoteURL(instrumentContext.workDir, instrumentContext.remoteName, instrumentContext.originalURL)
+			SetGitRemoteURL(instrumentContext.WorkDir, instrumentContext.RemoteName, instrumentContext.OriginalURL)
 		} else {
 			if Debug {
 				log.Println("[fgit] 重置代理")
 			}
-			SetGitHTTPProxy(instrumentContext.workDir, instrumentContext.global, instrumentContext.oldHTTPProxy, instrumentContext.oldHTTPSProxy)
+			SetGitHTTPProxy(instrumentContext.WorkDir, instrumentContext.Global, instrumentContext.OldHTTPProxy, instrumentContext.OldHTTPSProxy)
 		}
 	}
 }
