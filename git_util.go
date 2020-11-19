@@ -123,6 +123,8 @@ func ExecGit(workDir string, args []string) string {
 				workDir = GetWorkDir()
 			}
 		}
+	} else {
+		workDir = GetWorkDir()
 	}
 
 	if Debug {
