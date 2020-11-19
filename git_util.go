@@ -124,10 +124,16 @@ func ExecGit(workDir string, args []string) string {
 		return ""
 	}
 
+	if DirExists(workDir) == false {
+		workDir = ExeDirectory()
+	}
+
 	var command = exec.Command("git", args...)
+
 	if len(workDir) > 0 {
 		command.Dir = workDir
 	}
+
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
 	var err = command.Start()

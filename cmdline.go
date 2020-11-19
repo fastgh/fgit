@@ -55,7 +55,6 @@ type CommandLineT struct {
 	SubCommand            string
 	GitRemoteName         string
 	IsGitClone            bool
-	GitCloneDir           string
 	GitDir                string
 	GitURLText            string
 	ArgIndexOfGitURLText  int
@@ -490,7 +489,7 @@ func parseGitCloneCommandLine(r CommandLine) {
 				r.ArgIndexOfGitURLText = i
 				r.GitURLText = arg
 			} else {
-				r.GitCloneDir = arg
+				r.GitDir = arg
 			}
 		}
 
@@ -501,10 +500,10 @@ func parseGitCloneCommandLine(r CommandLine) {
 		return
 	}
 
-	if len(r.GitCloneDir) == 0 {
-		r.GitCloneDir = r.GitURLText[strings.LastIndex(r.GitURLText, "/")+1:]
-		if strings.HasSuffix(strings.ToLower(r.GitCloneDir), ".git") {
-			r.GitCloneDir = r.GitCloneDir[:len(r.GitCloneDir)-4]
+	if len(r.GitDir) == 0 {
+		r.GitDir = r.GitURLText[strings.LastIndex(r.GitURLText, "/")+1:]
+		if strings.HasSuffix(strings.ToLower(r.GitDir), ".git") {
+			r.GitDir = r.GitDir[:len(r.GitDir)-4]
 		}
 	}
 

@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -32,8 +33,24 @@ func FileStat(path string, ensureExists bool) os.FileInfo {
 
 // FileExists ...
 func FileExists(path string) bool {
-	if FileStat(path, false) == nil {
+	fi := FileStat(path, false)
+	if fi == nil {
 		return false
+	}
+	if fi.IsDir() {
+		panic(fmt.Errorf("%s是目录，不是文件", path))
+	}
+	return true
+}
+
+// DirExists ...
+func DirExists(path string) bool {
+	fi := FileStat(path, false)
+	if fi == nil {
+		return false
+	}
+	if !fi.IsDir() {
+		panic(fmt.Errorf("%s是文件，不是目录", path))
 	}
 	return true
 }
