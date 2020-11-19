@@ -245,6 +245,8 @@ func parsePullCommand(r CommandLine) {
 				if len(r.GitRemoteName) == 0 {
 					r.GitRemoteName = arg
 				}
+			} else {
+				panic(fmt.Errorf("[fgit] 不支持pull选项 '%s'", arg))
 			}
 		} else {
 			if opt.Name == "--recurse-submodules" {
@@ -318,6 +320,8 @@ func parseFetchCommand(r CommandLine) {
 				if len(r.GitRemoteName) == 0 {
 					r.GitRemoteName = arg
 				}
+			} else {
+				panic(fmt.Errorf("[fgit] 不支持fetch选项 '%s'", arg))
 			}
 		} else {
 			if opt.Name == "-m" || opt.Name == "--multiple" || opt.Name == "--recurse-submodules" {
@@ -387,6 +391,8 @@ func parsePushCommand(r CommandLine) {
 				if len(r.GitRemoteName) == 0 {
 					r.GitRemoteName = arg
 				}
+			} else {
+				panic(fmt.Errorf("[fgit] 不支持push选项 '%s'", arg))
 			}
 		} else {
 			if opt.Name == "--recurse-submodules" {
@@ -481,6 +487,8 @@ func parseGitCloneCommandLine(r CommandLine) {
 					r.GitCloneDir = arg
 				}
 			}
+		} else {
+			panic(fmt.Errorf("[fgit] 不支持clone选项 '%s'", arg))
 		}
 
 	}
