@@ -202,6 +202,8 @@ var pullOptions = []GitOptionT{
 	{"--refmap", true, false},
 	{"-4", false, false}, {"--ipv4", false, false},
 	{"-6", false, false}, {"--ipv6", false, false},
+	{"--show-forced-updates", false, false},
+	{"--set-upstream", false, false},
 }
 
 func parsePullCommand(r CommandLine) {
@@ -240,6 +242,7 @@ var fetchOptions = []GitOptionT{
 	{"-v", false, false}, {"--verbose", false, false},
 	{"-q", false, false}, {"--quiet", false, false},
 	{"--all", false, false},
+	{"--set-upstream", false, false},
 	{"-a", false, false}, {"--append", false, false},
 	{"--upload-pack", true, false},
 	{"-f", false, false}, {"--force", false, false},
@@ -265,7 +268,10 @@ var fetchOptions = []GitOptionT{
 	{"-4", false, false}, {"--ipv4", false, false},
 	{"-6", false, false}, {"--ipv6", false, false},
 	{"--negotiation-tip", true, false},
-	{"--filter", false, false},
+	{"--filter", true, false},
+	{"--auto-gc", false, false},
+	{"--show-forced-updates", false, false},
+	{"--write-commit-graph", false, false},
 }
 
 func parseFetchCommand(r CommandLine) {
