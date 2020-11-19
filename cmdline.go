@@ -142,13 +142,14 @@ func ParseCommandLine() CommandLine {
 	}
 
 	filterExtendedArguments(r)
-	resolveSubCommand(r)
 
 	argSize := len(r.Args)
 	if argSize == 0 {
 		r.PerhapsNeedInstrument = false
+		return r
 	}
 
+	resolveSubCommand(r)
 	if r.PerhapsNeedInstrument == false {
 		return r
 	}
