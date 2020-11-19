@@ -12,7 +12,7 @@
       "program": "${fileDirname}",
       "env": {},
       "cwd": "/home/qiangyt/temp/jog",
-      "args": ["pull"]
+      "args": ["pull", "origin", "master"]
     }
   ]
 }

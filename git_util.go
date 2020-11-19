@@ -106,9 +106,7 @@ func ResolveGitURL(gitURLText string) *url.URL {
 
 // GetGitRemoteURL ...
 func GetGitRemoteURL(workDir string, remoteName string) string {
-	r := ExecGit(false, workDir, []string{"remote", "get-url", remoteName})
-	r = strings.Trim(r, "\n\r\t ")
-	return r
+	return ExecGit(false, workDir, []string{"remote", "get-url", remoteName})
 }
 
 // SetGitRemoteURL ...
@@ -153,6 +151,12 @@ func ExecGit(redirect bool, workDir string, args []string) string {
 		return ""
 	}
 
-	r, _ := command.Output()
-	return string(r)
+	t, _ := command.Output()
+	r := string(t)
+	r = strings.Trim(r, "\n\r\t ")
+
+	if Debug {
+		log.Printf("[fgit] return: %s\n", r)
+	}
+	return r
 }

@@ -75,7 +75,7 @@ func PrintHelp(errorMode bool) {
 	} else {
 		c = color.Blue
 	}
-	c.Printf("fgit %d.%d.%d - 快50倍的git --> github.com。\n", VersionMajor, VersionMinor, VersionFix)
+	c.Printf("fgit v%d.%d.%d: 快50倍的git --> github.com。\n", VersionMajor, VersionMinor, VersionFix)
 }
 
 func (me CommandLine) String() string {
@@ -242,11 +242,13 @@ func parsePullCommand(r CommandLine) {
 
 		if opt == nil {
 			if isOptionArg(arg) == false {
-				r.GitRemoteName = arg
+				if len(r.GitRemoteName) == 0 {
+					r.GitRemoteName = arg
+				}
 			}
 		} else {
 			if opt.Name == "--recurse-submodules" {
-				panic(errors.New("pull options '--recurse-submodules' is not supported"))
+				panic(errors.New("[fgit] 不支持pull选项 '--recurse-submodules'"))
 			}
 		}
 	}
@@ -313,11 +315,13 @@ func parseFetchCommand(r CommandLine) {
 
 		if opt == nil {
 			if isOptionArg(arg) == false {
-				r.GitRemoteName = arg
+				if len(r.GitRemoteName) == 0 {
+					r.GitRemoteName = arg
+				}
 			}
 		} else {
 			if opt.Name == "-m" || opt.Name == "--multiple" || opt.Name == "--recurse-submodules" {
-				panic(fmt.Errorf("fetch options '%s' is not supported", opt.Name))
+				panic(fmt.Errorf("[fgit] 不支持fetch选项 '%s'", opt.Name))
 			}
 		}
 	}
@@ -380,11 +384,13 @@ func parsePushCommand(r CommandLine) {
 
 		if opt == nil {
 			if isOptionArg(arg) == false {
-				r.GitRemoteName = arg
+				if len(r.GitRemoteName) == 0 {
+					r.GitRemoteName = arg
+				}
 			}
 		} else {
 			if opt.Name == "--recurse-submodules" {
-				panic(errors.New("push options '--recurse-submodules' is not supported"))
+				panic(errors.New("[fgit] 不支持push选项 '--recurse-submodules'"))
 			}
 			if opt.Name == "--repo" {
 				r.GitRemoteName = argValue
@@ -464,14 +470,16 @@ func parseGitCloneCommandLine(r CommandLine) {
 					r.GitURLText = argValue
 				}
 			} else if opt.Name == "--recursive" || opt.Name == "----recurse-submodules" {
-				panic(fmt.Errorf("clone options '%s' is not supported", opt.Name))
+				panic(fmt.Errorf("[fgit] 不支持clone选项 '%s'", opt.Name))
 			}
 		} else if isOptionArg(arg) == false {
 			if len(r.GitURLText) == 0 {
 				r.ArgIndexOfGitURLText = i
 				r.GitURLText = arg
 			} else {
-				r.GitCloneDir = arg
+				if len(r.GitCloneDir) == 0 {
+					r.GitCloneDir = arg
+				}
 			}
 		}
 
