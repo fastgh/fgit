@@ -18,9 +18,19 @@ const (
 	VersionFix = 0
 )
 
+// GitOptionT ...
+type GitOptionT struct {
+	Name         string
+	RequireValue bool
+	IsPrefix     bool
+}
+
+// GitOption ...
+type GitOption = *GitOptionT
+
 // CommandLineT ...
 type CommandLineT struct {
-	GitCommand            string
+	SubCommand            string
 	GitRemoteName         string
 	IsGitClone            bool
 	GitCloneDir           string
@@ -42,21 +52,21 @@ func PrintHelp(errorMode bool) {
 	} else {
 		c = color.Blue
 	}
-	c.Printf("fgit %d.%d.%d - 让中国开发者git clone https://github.com时提速100倍。\n", VersionMajor, VersionMinor, VersionFix)
+	c.Printf("fgit %d.%d.%d - 快50倍的git clone github.com。\n", VersionMajor, VersionMinor, VersionFix)
 }
 
 func (me CommandLine) String() string {
 	return JSONPretty(me)
 }
 
-func filterExtendedArguments(cmdline CommandLine) {
+func filterExtendedArguments(r CommandLine) {
 	valueTrue := true
 
 	for i := 1; i < len(os.Args); i++ {
 		arg := os.Args[i]
 
 		if arg == "--private" {
-			cmdline.IsPrivate = &valueTrue
+			r.IsPrivate = &valueTrue
 			continue
 		}
 		if arg == "--debug" {
@@ -68,31 +78,31 @@ func filterExtendedArguments(cmdline CommandLine) {
 			continue
 		}
 
-		cmdline.Args = append(cmdline.Args, arg)
+		r.Args = append(r.Args, arg)
 	}
 }
 
-func resolveGitCommand(cmdline CommandLine) {
+func resolveSubCommand(r CommandLine) {
 	valueTrue := true
 
-	arg0 := cmdline.Args[0]
+	arg0 := r.Args[0]
 	if isOptionArg(arg0) {
 		return
 	}
 
 	if arg0 == "clone" {
-		cmdline.GitCommand = "clone"
+		r.SubCommand = "clone"
 
-		cmdline.IsGitClone = true
-		cmdline.PerhapsNeedInstrument = true
+		r.IsGitClone = true
+		r.PerhapsNeedInstrument = true
 		return
 	}
 
 	if arg0 == "pull" || arg0 == "push" || arg0 == "fetch" {
-		cmdline.GitCommand = arg0
-		cmdline.PerhapsNeedInstrument = true
+		r.SubCommand = arg0
+		r.PerhapsNeedInstrument = true
 		if arg0 == "push" {
-			cmdline.IsPrivate = &valueTrue
+			r.IsPrivate = &valueTrue
 		}
 	}
 }
@@ -102,7 +112,7 @@ func ParseCommandLine() CommandLine {
 	valueFalse := false
 
 	r := &CommandLineT{
-		GitCommand:            "",
+		SubCommand:            "",
 		GitRemoteName:         "origin",
 		IsGitClone:            false,
 		GitCloneDir:           "",
@@ -114,7 +124,7 @@ func ParseCommandLine() CommandLine {
 	}
 
 	filterExtendedArguments(r)
-	resolveGitCommand(r)
+	resolveSubCommand(r)
 
 	argSize := len(r.Args)
 	if argSize == 0 {
@@ -125,11 +135,11 @@ func ParseCommandLine() CommandLine {
 		return r
 	}
 
-	if r.GitCommand == "clone" {
+	if r.SubCommand == "clone" {
 		parseGitCloneCommandLine(r)
-	} else if r.GitCommand == "fetch" || r.GitCommand == "pull" {
+	} else if r.SubCommand == "fetch" || r.SubCommand == "pull" {
 		parsePullOrFetchCommand(r)
-	} else if r.GitCommand == "push" {
+	} else if r.SubCommand == "push" {
 		parsePushCommand(r)
 	} else {
 		r.PerhapsNeedInstrument = false
@@ -140,24 +150,24 @@ func ParseCommandLine() CommandLine {
 	}
 
 	if !r.IsGitClone {
-		if len(Cmdline.GitRemoteName) == 0 {
-			Cmdline.GitRemoteName = ResolveGitRemoteName("")
+		if len(r.GitRemoteName) == 0 {
+			r.GitRemoteName = ResolveGitRemoteName("")
 		}
 	}
 
-	if len(Cmdline.GitURLText) == 0 {
-		Cmdline.GitURLText = ResolveGitURLText(Cmdline.GitURLText, Cmdline.GitRemoteName, Cmdline.IsGitClone)
+	if len(r.GitURLText) == 0 {
+		r.GitURLText = ResolveGitURLText(r.GitURLText, r.GitRemoteName, r.IsGitClone)
 	}
 
 	return r
 }
 
-func parsePullOrFetchCommand(cmdline CommandLine) {
-	argSize := len(cmdline.Args)
+func parsePullOrFetchCommand(r CommandLine) {
+	argSize := len(r.Args)
 
 	argsWithoutOptions := []string{}
 	for i := 1; i < argSize; i++ {
-		arg := cmdline.Args[i]
+		arg := r.Args[i]
 
 		if !isOptionArg(arg) {
 			argsWithoutOptions = append(argsWithoutOptions, arg)
@@ -165,101 +175,131 @@ func parsePullOrFetchCommand(cmdline CommandLine) {
 	}
 
 	if len(argsWithoutOptions) > 0 {
-		cmdline.GitRemoteName = argsWithoutOptions[0]
+		r.GitRemoteName = argsWithoutOptions[0]
 	}
 
-	cmdline.PerhapsNeedInstrument = true
+	r.PerhapsNeedInstrument = true
 }
 
-func parsePushCommand(cmdline CommandLine) {
+func parsePushCommand(r CommandLine) {
 	valueTrue := true
-	argSize := len(cmdline.Args)
+	argSize := len(r.Args)
 
 	argsWithoutOptions := []string{}
 	for i := 1; i < argSize; i++ {
-		arg := cmdline.Args[i]
+		arg := r.Args[i]
 
 		if !isOptionArg(arg) {
 			argsWithoutOptions = append(argsWithoutOptions, arg)
 		} else {
 			lenOfRepoOptionPrefix := len("--repo=")
 			if len(arg) > lenOfRepoOptionPrefix && arg[0:lenOfRepoOptionPrefix] == "--repo=" {
-				cmdline.GitRemoteName = arg[lenOfRepoOptionPrefix:]
+				r.GitRemoteName = arg[lenOfRepoOptionPrefix:]
 			}
 		}
 	}
 
-	if len(cmdline.GitRemoteName) == 0 {
+	if len(r.GitRemoteName) == 0 {
 		if len(argsWithoutOptions) > 0 {
-			cmdline.GitRemoteName = argsWithoutOptions[0]
+			r.GitRemoteName = argsWithoutOptions[0]
 		}
 	}
 
-	cmdline.IsPrivate = &valueTrue
-	cmdline.PerhapsNeedInstrument = true
+	r.IsPrivate = &valueTrue
+	r.PerhapsNeedInstrument = true
 }
 
-func parseGitCloneCommandLine(cmdline CommandLine) {
-	argSize := len(cmdline.Args)
+var cloneOptions = []GitOptionT{
+	{"-v", false, false},
+	{"--verbose", false, false},
+	{"-q", false, false}, {"--quiet", false, false},
+	{"--progress, false", false, false},
+	{"-n", false, false}, {"--no-checkout", false, false},
+	{"--bare", false, false},
+	{"--mirror", false, false},
+	{"-l", false, false}, {"--local", false, false},
+	{"--no-hardlinks", false, false},
+	{"-s", false, false}, {"--shared", false, false},
+	{"--recursive", false, true},
+	{"-j", true, false}, {"--jobs", true, false},
+	{"--template", true, false},
+	{"--reference", true, false},
+	{"--reference-if-able", true, false},
+	{"--dissociate", false, false},
+	{"-o", true, false}, {"--origin", true, false},
+	{"-b", true, false}, {"--branch", true, false},
+	{"-u", true, false}, {"--upload-pack", true, false},
+	{"--depth", true, false},
+	{"--shallow-since", true, false},
+	{"--shallow-exclude", true, false},
+	{"--single-branch", false, false},
+	{"--no-tags", false, false},
+	{"--shallow-submodules", false, false},
+	{"--separate-git-dir", true, false},
+	{"-c", true, false}, {"--config", true, false},
+	{"--server-option", true, false},
+	{"-4", false, false}, {"--ipv4", false, false},
+	{"-6", false, false}, {"--ipv6", false, false},
+	{"--filter", true, false},
+	{"--", true, false},
+}
+
+func parseGitCloneCommandLine(r CommandLine) {
+	argSize := len(r.Args)
 
 	for i := 1; i < argSize; i++ {
-		arg := cmdline.Args[i]
+		arg := r.Args[i]
+		argValue := ""
 
-		argNext := ""
-		if i < argSize-1 {
-			argNext = cmdline.Args[i+1]
-		}
+		var opt GitOption
 
-		if isOptionArg(arg) == false {
-			continue
-		}
-
-		if arg == "-o" || arg == "--origin" {
-			cmdline.GitRemoteName = argNext
-		} else if arg == "--" {
-			if len(argNext) > 0 {
-				cmdline.ArgIndexOfGitURLText = i
-				cmdline.GitURLText = argNext
-			}
-		}
-	}
-
-	argLast := cmdline.Args[argSize-1]
-
-	argLastPrev := ""
-	if argSize > 1 {
-		argLastPrev = cmdline.Args[argSize-2]
-	}
-
-	if len(cmdline.GitURLText) == 0 {
-		if isOptionArg(argLast) == false {
-			if isOptionArg(argLastPrev) {
-				cmdline.ArgIndexOfGitURLText = argSize - 1
-				cmdline.GitURLText = argLast
-			} else {
-				if argSize >= 2 {
-					cmdline.ArgIndexOfGitURLText = argSize - 2
+		for _, t := range cloneOptions {
+			if t.Name == arg || (t.IsPrefix && strings.Index(arg, t.Name) == 0) {
+				opt = &t
+				if t.RequireValue {
+					if i < argSize-1 {
+						argValue = r.Args[i+1]
+					}
+					i++
 				}
-				cmdline.GitURLText = argLastPrev
-				cmdline.GitCloneDir = argLast
+				break
 			}
 		}
+
+		if opt != nil {
+			if arg == "-o" || arg == "--origin" {
+				r.GitRemoteName = argValue
+			} else if arg == "--" {
+				if len(argValue) > 0 {
+					r.ArgIndexOfGitURLText = i
+					r.GitURLText = argValue
+				}
+			}
+		} else if isOptionArg(arg) == false {
+			if len(r.GitURLText) == 0 {
+				r.ArgIndexOfGitURLText = i
+				r.GitURLText = arg
+			} else {
+				r.GitCloneDir = arg
+			}
+		}
+
 	}
 
-	if len(cmdline.GitURLText) == 0 {
-		cmdline.PerhapsNeedInstrument = false
+	if len(r.GitURLText) == 0 {
+		r.PerhapsNeedInstrument = false
 		return
 	}
 
-	if len(cmdline.GitCloneDir) == 0 {
-		cmdline.GitCloneDir = cmdline.GitURLText[strings.LastIndex(cmdline.GitURLText, "/")+1:]
-		if strings.HasSuffix(strings.ToLower(cmdline.GitCloneDir), ".git") {
-			cmdline.GitCloneDir = cmdline.GitCloneDir[:len(cmdline.GitCloneDir)-4]
+	if len(r.GitCloneDir) == 0 {
+		r.GitCloneDir = r.GitURLText[strings.LastIndex(r.GitURLText, "/")+1:]
+		if strings.HasSuffix(strings.ToLower(r.GitCloneDir), ".git") {
+			r.GitCloneDir = r.GitCloneDir[:len(r.GitCloneDir)-4]
 		}
 	}
 
 }
 
 func isOptionArg(arg string) bool {
-	return len(arg) > 0 && arg[0:1] != "-"
+	return len(arg) > 0 && arg[0:1] == "-"
 }

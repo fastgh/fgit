@@ -14,11 +14,8 @@ import (
 	"github.com/gookit/color"
 )
 
-// Cmdline ...
-var Cmdline CommandLine
-
-func oldGit(fgitHelpFirst bool, errorMode bool) {
-	if Cmdline == nil {
+func oldGit(cmdline CommandLine, fgitHelpFirst bool, errorMode bool) {
+	if cmdline == nil {
 		fgitHelpFirst = false
 	}
 
@@ -26,16 +23,16 @@ func oldGit(fgitHelpFirst bool, errorMode bool) {
 		PrintHelp(errorMode)
 		fmt.Println()
 
-		if Cmdline == nil {
+		if cmdline == nil {
 			ExecGit("", os.Args[1:])
 		} else {
-			ExecGit("", Cmdline.Args)
+			ExecGit("", cmdline.Args)
 		}
 	} else {
-		if Cmdline == nil {
+		if cmdline == nil {
 			ExecGit("", os.Args[1:])
 		} else {
-			ExecGit("", Cmdline.Args)
+			ExecGit("", cmdline.Args)
 		}
 
 		fmt.Println()
@@ -49,17 +46,17 @@ func main() {
 
 	//TODO: recover
 
-	Cmdline = ParseCommandLine()
+	cmdline := ParseCommandLine()
 	if Debug {
 		log.Printf("[fgit] Mock: %v\n", Mock)
-		log.Printf("[fgit] 命令行: \n%s\n", JSONPretty(Cmdline))
+		log.Printf("[fgit] 命令行: \n%s\n", JSONPretty(cmdline))
 	}
 
-	if Cmdline.PerhapsNeedInstrument == false {
+	if cmdline.PerhapsNeedInstrument == false {
 		if Debug {
 			log.Println("[fgit] 无需设置代理")
 		}
-		oldGit(false, false)
+		oldGit(cmdline, false, false)
 		return
 	}
 
@@ -71,29 +68,29 @@ func main() {
 		}
 	}()
 
-	gitURL := ResolveGitURL(Cmdline.GitURLText)
+	gitURL := ResolveGitURL(cmdline.GitURLText)
 
 	if Debug {
-		log.Printf("[fgit] GitURLText: %s, gitURL=%s\n", Cmdline.GitURLText, JSONMarshal(gitURL))
+		log.Printf("[fgit] GitURLText: %s, gitURL=%s\n", cmdline.GitURLText, JSONMarshal(gitURL))
 	}
 
 	if strings.ToLower(gitURL.Host) != "github.com" {
 		if Debug {
-			log.Println("[fgit] 不是github.com库，跳过")
+			log.Println("[fgit] 忽略非github.com库")
 		}
-		oldGit(false, false)
+		oldGit(cmdline, false, false)
 		return
 	}
 
 	if strings.ToLower(gitURL.Scheme) != "https" {
 		color.Yellow.Printf("[fgit] 不支持%s (仅支持https)\n", gitURL.Scheme)
-		oldGit(false, false)
+		oldGit(cmdline, false, false)
 		return
 	}
 
 	var isPrivate bool
-	if Cmdline.IsPrivate != nil {
-		isPrivate = *Cmdline.IsPrivate
+	if cmdline.IsPrivate != nil {
+		isPrivate = *cmdline.IsPrivate
 	} else if len(gitURL.User.Username()) > 0 {
 		isPrivate = true
 
@@ -109,7 +106,7 @@ func main() {
 
 	HookInterruptSignal()
 
-	GithubInstrument(isPrivate, cfg)
+	GithubInstrument(cmdline, isPrivate, cfg)
 }
 
 // HookInterruptSignal ...

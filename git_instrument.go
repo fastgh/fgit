@@ -7,8 +7,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-// InstrumentContext ...
-type InstrumentContext struct {
+// InstrumentContextT ...
+type InstrumentContextT struct {
 	OldHTTPProxy  string
 	OldHTTPSProxy string
 	UseMirror     bool
@@ -20,77 +20,84 @@ type InstrumentContext struct {
 	RemoteName    string
 }
 
-var instrumentContext = InstrumentContext{}
+// InstrumentContext ...
+type InstrumentContext = *InstrumentContextT
+
+var instrumentContext = &InstrumentContextT{}
 
 // GithubInstrument ...GithubInstrument
-func GithubInstrument(isPrivate bool, config Config) {
+func GithubInstrument(cmdline CommandLine, isPrivate bool, config Config) {
+	ictx := instrumentContext
+
 	if isPrivate {
-		instrumentContext.UseMirror = false
+		ictx.UseMirror = false
 	} else {
-		instrumentContext.UseMirror = true
+		ictx.UseMirror = true
 	}
 
-	if Cmdline.IsGitClone {
-		instrumentContext.Global = true
-		instrumentContext.WorkDir = Cmdline.GitCloneDir
+	if cmdline.IsGitClone {
+		ictx.Global = true
+		ictx.WorkDir = cmdline.GitCloneDir
 	} else {
-		instrumentContext.Global = false
-		instrumentContext.WorkDir = ""
+		ictx.Global = false
+		ictx.WorkDir = ""
 	}
 
 	if Debug {
-		log.Printf("[fgit] 修改前: %s\n", JSONPretty(instrumentContext))
+		log.Printf("[fgit] 修改前: %s\n", JSONPretty(ictx))
 	}
 
 	defer ResetGithubRemote()
 
-	if instrumentContext.UseMirror {
+	if ictx.UseMirror {
 		if Debug {
 			log.Println("[fgit] 设置镜像")
 		}
 
-		instrumentContext.OriginalURL = Cmdline.GitURLText
-		instrumentContext.MirroredURL = GeneratedMirroredURL(instrumentContext.OriginalURL, config.Mirror)
+		ictx.OriginalURL = cmdline.GitURLText
+		ictx.MirroredURL = GeneratedMirroredURL(ictx.OriginalURL, config.Mirror)
 
-		instrumentContext.RemoteName = Cmdline.GitRemoteName
+		ictx.RemoteName = cmdline.GitRemoteName
 
-		if Cmdline.IsGitClone {
-			Cmdline.Args[Cmdline.ArgIndexOfGitURLText-1] = instrumentContext.MirroredURL
+		if cmdline.IsGitClone {
+			cmdline.Args[cmdline.ArgIndexOfGitURLText] = ictx.MirroredURL
 		} else {
-			SetGitRemoteURL(instrumentContext.WorkDir, instrumentContext.RemoteName, instrumentContext.MirroredURL)
+			SetGitRemoteURL(ictx.WorkDir, ictx.RemoteName, ictx.MirroredURL)
 		}
 	} else {
 		if Debug {
 			log.Println("[fgit] 设置代理")
 		}
-		instrumentContext.OldHTTPProxy, instrumentContext.OldHTTPSProxy = ConfigGitHTTPProxy(instrumentContext.WorkDir, instrumentContext.Global, config.Proxy, config.Proxy)
+		ictx.OldHTTPProxy, ictx.OldHTTPSProxy = ConfigGitHTTPProxy(ictx.WorkDir, ictx.Global, config.Proxy, config.Proxy)
 	}
-	instrumentContext.ShouldReset = true
+	ictx.ShouldReset = true
 
 	if Debug {
-		log.Printf("[fgit] 修改后: %s\n", JSONPretty(instrumentContext))
+		log.Printf("[fgit] 修改后: %s\n", JSONPretty(ictx))
 	}
 
-	oldGit(true, false)
+	oldGit(cmdline, true, false)
 }
 
 // ResetGithubRemote ...
 func ResetGithubRemote() {
+	ictx := instrumentContext
+
 	if Debug {
-		log.Printf("[fgit] 重置修改: %s\n", JSONPretty(instrumentContext))
+		log.Printf("[fgit] 重置修改: %s\n", JSONPretty(ictx))
 	}
 
-	if instrumentContext.ShouldReset {
-		if instrumentContext.UseMirror {
+	if ictx.ShouldReset {
+		if ictx.UseMirror {
 			if Debug {
 				log.Println("[fgit] 重置镜像")
 			}
-			SetGitRemoteURL(instrumentContext.WorkDir, instrumentContext.RemoteName, instrumentContext.OriginalURL)
+			SetGitRemoteURL(ictx.WorkDir, ictx.RemoteName, ictx.OriginalURL)
 		} else {
 			if Debug {
 				log.Println("[fgit] 重置代理")
 			}
-			SetGitHTTPProxy(instrumentContext.WorkDir, instrumentContext.Global, instrumentContext.OldHTTPProxy, instrumentContext.OldHTTPSProxy)
+			SetGitHTTPProxy(ictx.WorkDir, ictx.Global, ictx.OldHTTPProxy, ictx.OldHTTPSProxy)
 		}
 	}
 }
