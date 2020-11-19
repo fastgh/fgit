@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"math/rand"
@@ -61,7 +62,11 @@ func main() {
 
 	defer func() {
 		if p := recover(); p != nil {
-			color.Red.Printf("[fgit] 程序崩溃, 错误原因: %s\n堆栈:\n%s", p, string(debug.Stack()))
+			if Debug {
+				color.Red.Printf("[fgit] 程序崩溃, 错误原因: %s\n堆栈:\n%s", p, string(debug.Stack()))
+			} else {
+				color.Red.Printf("[fgit] 程序崩溃, 错误原因: %s\n", p)
+			}
 			ResetGithubRemote()
 			return
 		}
@@ -74,17 +79,11 @@ func main() {
 	}
 
 	if strings.ToLower(gitURL.Host) != "github.com" {
-		if Debug {
-			log.Println("[fgit] 忽略非github.com库")
-		}
-		oldGit(cmdline, false, false)
-		return
+		panic(errors.New("fgit不支持非github.com库"))
 	}
 
 	if strings.ToLower(gitURL.Scheme) != "https" {
-		color.Yellow.Printf("[fgit] 不支持%s (仅支持https)\n", gitURL.Scheme)
-		oldGit(cmdline, false, false)
-		return
+		panic(fmt.Errorf("fgit不支持%s，仅支持https", gitURL.Scheme))
 	}
 
 	if cmdline.IsPrivate == false && len(gitURL.User.Username()) > 0 {
@@ -123,7 +122,11 @@ func HookInterruptSignal() {
 	go func() {
 		defer func() {
 			if p := recover(); p != nil {
-				color.Red.Printf("[fgit] 程序崩溃, 错误原因: %s\n堆栈:\n%s", p, string(debug.Stack()))
+				if Debug {
+					color.Red.Printf("[fgit] 程序崩溃, 错误原因: %s\n堆栈:\n%s", p, string(debug.Stack()))
+				} else {
+					color.Red.Printf("[fgit] 程序崩溃, 错误原因: %s\n", p)
+				}
 			}
 		}()
 		for range signalChan {
