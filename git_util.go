@@ -48,7 +48,7 @@ func SetGitHTTPProxy(workDir string, global bool, oldHTTPProxy, oldHTTPSProxy st
 	if len(oldHTTPProxy) > 0 {
 		ExecGit(workDir, []string{"config", scope, "http.https://github.com.proxy", oldHTTPProxy})
 	} else {
-		ExecGit(workDir, []string{"config", scope, "--unset-all", "http.https://github.com.proxyy"})
+		ExecGit(workDir, []string{"config", scope, "--unset-all", "http.https://github.com.proxy"})
 	}
 
 	if len(oldHTTPSProxy) > 0 {
