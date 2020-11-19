@@ -22,17 +22,17 @@ func ConfigGitHTTPProxy(workDir string, global bool, newHTTPProxy, newHTTPSProxy
 		scope = "--local"
 	}
 
-	oldHTTPProxy = ExecGit(workDir, []string{"config", scope, "--get", "http.https://github.com.proxy"})
+	oldHTTPProxy = ExecGit(false, workDir, []string{"config", scope, "--get", "http.https://github.com.proxy"})
 	if strings.Index(oldHTTPProxy, "exit") >= 0 {
 		oldHTTPProxy = ""
 	}
-	oldHTTPSProxy = ExecGit(workDir, []string{"config", scope, "--get", "https.https://github.com.proxy"})
+	oldHTTPSProxy = ExecGit(false, workDir, []string{"config", scope, "--get", "https.https://github.com.proxy"})
 	if strings.Index(oldHTTPSProxy, "exit") >= 0 {
 		oldHTTPSProxy = ""
 	}
 
-	ExecGit(workDir, []string{"config", scope, "http.https://github.com.proxy", newHTTPProxy})
-	ExecGit(workDir, []string{"config", scope, "https.https://github.com.proxy", newHTTPSProxy})
+	ExecGit(false, workDir, []string{"config", scope, "http.https://github.com.proxy", newHTTPProxy})
+	ExecGit(false, workDir, []string{"config", scope, "https.https://github.com.proxy", newHTTPSProxy})
 
 	return
 }
@@ -46,15 +46,15 @@ func SetGitHTTPProxy(workDir string, global bool, oldHTTPProxy, oldHTTPSProxy st
 		scope = "--local"
 	}
 	if len(oldHTTPProxy) > 0 {
-		ExecGit(workDir, []string{"config", scope, "http.https://github.com.proxy", oldHTTPProxy})
+		ExecGit(false, workDir, []string{"config", scope, "http.https://github.com.proxy", oldHTTPProxy})
 	} else {
-		ExecGit(workDir, []string{"config", scope, "--unset-all", "http.https://github.com.proxy"})
+		ExecGit(false, workDir, []string{"config", scope, "--unset-all", "http.https://github.com.proxy"})
 	}
 
 	if len(oldHTTPSProxy) > 0 {
-		ExecGit(workDir, []string{"config", scope, "https.https://github.com.proxy", oldHTTPSProxy})
+		ExecGit(false, workDir, []string{"config", scope, "https.https://github.com.proxy", oldHTTPSProxy})
 	} else {
-		ExecGit(workDir, []string{"config", scope, "--unset-all", "https.https://github.com.proxy"})
+		ExecGit(false, workDir, []string{"config", scope, "--unset-all", "https.https://github.com.proxy"})
 	}
 }
 
@@ -75,7 +75,7 @@ func ResolveGitURLText(gitURLText string, remoteName string, isGitClone bool) st
 
 // ResolveGitRemoteName ...
 func ResolveGitRemoteName(workDir string) string {
-	r := ExecGit(workDir, []string{"remote"})
+	r := ExecGit(false, workDir, []string{"remote"})
 	r = strings.Trim(r, "\n\r\t ")
 
 	posOfReturn := strings.Index(r, "\n")
@@ -106,16 +106,18 @@ func ResolveGitURL(gitURLText string) *url.URL {
 
 // GetGitRemoteURL ...
 func GetGitRemoteURL(workDir string, remoteName string) string {
-	return ExecGit(workDir, []string{"remote", "get-url", remoteName})
+	r := ExecGit(false, workDir, []string{"remote", "get-url", remoteName})
+	r = strings.Trim(r, "\n\r\t ")
+	return r
 }
 
 // SetGitRemoteURL ...
 func SetGitRemoteURL(workDir string, remoteName string, remoteURL string) {
-	ExecGit(workDir, []string{"remote", "set-url", remoteName, remoteURL})
+	ExecGit(false, workDir, []string{"remote", "set-url", remoteName, remoteURL})
 }
 
 // ExecGit ...
-func ExecGit(workDir string, args []string) string {
+func ExecGit(redirect bool, workDir string, args []string) string {
 	if len(workDir) > 0 {
 		if DirExists(workDir) == false {
 			workDir = path.Join(GetWorkDir(), workDir)
@@ -137,15 +139,20 @@ func ExecGit(workDir string, args []string) string {
 		command.Dir = workDir
 	}
 
-	command.Stdout = os.Stdout
-	command.Stderr = os.Stderr
-	var err = command.Start()
-	if err != nil {
-		return err.Error()
+	if redirect {
+		command.Stdout = os.Stdout
+		command.Stderr = os.Stderr
+		var err = command.Start()
+		if err != nil {
+			return err.Error()
+		}
+		err = command.Wait()
+		if err != nil {
+			return err.Error()
+		}
+		return ""
 	}
-	err = command.Wait()
-	if err != nil {
-		return err.Error()
-	}
-	return ""
+
+	r, _ := command.Output()
+	return string(r)
 }

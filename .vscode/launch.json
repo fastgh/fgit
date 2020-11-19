@@ -11,7 +11,8 @@
       "mode": "auto",
       "program": "${fileDirname}",
       "env": {},
-      "args": ["clone", "https://testuser@github.com/spring-projects/spring-boot", "--debug"]
+      "cwd": "/home/qiangyt/temp/jog",
+      "args": ["pull"]
     }
   ]
 }

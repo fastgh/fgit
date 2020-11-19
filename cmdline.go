@@ -126,7 +126,7 @@ func resolveSubCommand(r CommandLine) {
 func ParseCommandLine() CommandLine {
 	r := &CommandLineT{
 		SubCommand:            "",
-		GitRemoteName:         "origin",
+		GitRemoteName:         "",
 		IsGitClone:            false,
 		GitDir:                "",
 		GitURLText:            "",

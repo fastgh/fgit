@@ -25,15 +25,15 @@ func oldGit(cmdline CommandLine, fgitHelpFirst bool, errorMode bool) {
 		fmt.Println()
 
 		if cmdline == nil {
-			ExecGit("", os.Args[1:])
+			ExecGit(true, "", os.Args[1:])
 		} else {
-			ExecGit("", cmdline.Args)
+			ExecGit(true, "", cmdline.Args)
 		}
 	} else {
 		if cmdline == nil {
-			ExecGit("", os.Args[1:])
+			ExecGit(true, "", os.Args[1:])
 		} else {
-			ExecGit("", cmdline.Args)
+			ExecGit(true, "", cmdline.Args)
 		}
 
 		fmt.Println()
