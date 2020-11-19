@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"path"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -109,18 +110,23 @@ func GetGitRemoteURL(workDir string, remoteName string) string {
 }
 
 // SetGitRemoteURL ...
-func SetGitRemoteURL(workDir string, remoteName string, remoteUrl string) {
-	ExecGit(workDir, []string{"remote", "set-url", remoteName, remoteUrl})
+func SetGitRemoteURL(workDir string, remoteName string, remoteURL string) {
+	ExecGit(workDir, []string{"remote", "set-url", remoteName, remoteURL})
 }
 
 // ExecGit ...
 func ExecGit(workDir string, args []string) string {
-	if Debug {
-		log.Println("[fgit] git cli: " + strings.Join(args, " "))
+	if len(workDir) > 0 {
+		if DirExists(workDir) == false {
+			workDir = path.Join(GetWorkDir(), workDir)
+			if DirExists(workDir) == false {
+				workDir = GetWorkDir()
+			}
+		}
 	}
 
-	if DirExists(workDir) == false {
-		workDir = ExeDirectory()
+	if Debug {
+		log.Printf("[fgit] %s: git %s\n", workDir, strings.Join(args, " "))
 	}
 
 	var command = exec.Command("git", args...)

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 
 	"github.com/pkg/errors"
 )
@@ -108,12 +107,11 @@ func JSONUnmarshal(jsonText string, v interface{}) {
 	}
 }
 
-// ExeDirectory ...
-func ExeDirectory() string {
-	exePath := os.Args[0]
-	r, err := filepath.Abs(filepath.Dir(exePath))
+// GetWorkDir ...
+func GetWorkDir() string {
+	r, err := os.Getwd()
 	if err != nil {
-		panic(errors.Wrapf(err, "failed to get absolute directory path for "+exePath))
+		panic(errors.Wrap(err, "无法获取当前工作目录路径"))
 	}
 	return r
 }

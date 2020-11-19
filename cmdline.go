@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/gookit/color"
-	"github.com/mitchellh/go-homedir"
 )
 
 const (
@@ -56,6 +55,7 @@ type CommandLineT struct {
 	GitRemoteName         string
 	IsGitClone            bool
 	GitDir                string
+	GitCloneDir           string
 	GitURLText            string
 	ArgIndexOfGitURLText  int
 	PerhapsNeedInstrument bool
@@ -177,15 +177,6 @@ func ParseCommandLine() CommandLine {
 
 	if len(r.GitURLText) == 0 {
 		r.GitURLText = ResolveGitURLText(r.GitURLText, r.GitRemoteName, r.IsGitClone)
-	}
-
-	if len(r.GitDir) == 0 {
-		r.GitDir = ExeDirectory()
-	} else {
-		t, err := homedir.Expand(r.GitDir)
-		if err != nil {
-			r.GitDir = t
-		}
 	}
 
 	return r
@@ -485,7 +476,7 @@ func parseGitCloneCommandLine(r CommandLine) {
 				r.ArgIndexOfGitURLText = i
 				r.GitURLText = arg
 			} else {
-				r.GitDir = arg
+				r.GitCloneDir = arg
 			}
 		}
 
@@ -496,10 +487,10 @@ func parseGitCloneCommandLine(r CommandLine) {
 		return
 	}
 
-	if len(r.GitDir) == 0 {
-		r.GitDir = r.GitURLText[strings.LastIndex(r.GitURLText, "/")+1:]
-		if strings.HasSuffix(strings.ToLower(r.GitDir), ".git") {
-			r.GitDir = r.GitDir[:len(r.GitDir)-4]
+	if len(r.GitCloneDir) == 0 {
+		r.GitCloneDir = r.GitURLText[strings.LastIndex(r.GitURLText, "/")+1:]
+		if strings.HasSuffix(strings.ToLower(r.GitCloneDir), ".git") {
+			r.GitCloneDir = r.GitCloneDir[:len(r.GitCloneDir)-4]
 		}
 	}
 

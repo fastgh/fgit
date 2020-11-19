@@ -37,10 +37,11 @@ func GithubInstrument(cmdline CommandLine, isPrivate bool, config Config) {
 
 	if cmdline.IsGitClone {
 		ictx.Global = true
+		ictx.WorkDir = cmdline.GitCloneDir
 	} else {
 		ictx.Global = false
+		ictx.WorkDir = cmdline.GitDir
 	}
-	ictx.WorkDir = cmdline.GitDir
 
 	if Debug {
 		log.Printf("[fgit] 修改前: %s\n", JSONPretty(ictx))
