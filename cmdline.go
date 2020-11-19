@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"os"
 	"strings"
 
@@ -137,8 +138,10 @@ func ParseCommandLine() CommandLine {
 
 	if r.SubCommand == "clone" {
 		parseGitCloneCommandLine(r)
-	} else if r.SubCommand == "fetch" || r.SubCommand == "pull" {
-		parsePullOrFetchCommand(r)
+	} else if r.SubCommand == "fetch" {
+		parseFetchCommand(r)
+	} else if r.SubCommand == "pull" {
+		parsePullCommand(r)
 	} else if r.SubCommand == "push" {
 		parsePushCommand(r)
 	} else {
@@ -162,51 +165,212 @@ func ParseCommandLine() CommandLine {
 	return r
 }
 
-func parsePullOrFetchCommand(r CommandLine) {
+var pullOptions = []GitOptionT{
+	{"-v", false, false}, {"--verbose", false, false},
+	{"-q", false, false}, {"--quiet", false, false},
+	{"--progress", false, false},
+	{"--recurse-submodules", false, true},
+	{"-r", false, true}, {"--rebase", false, true},
+	{"-n", false, false},
+	{"--stat", false, false},
+	{"--log", false, true},
+	{"--signoff", false, true},
+	{"--squash", false, false},
+	{"--commit", false, false},
+	{"--edit", false, false},
+	{"--cleanup", true, false},
+	{"--ff", false, false},
+	{"--ff-only", false, false},
+	{"--verify-signatures", false, false},
+	{"--autostash", false, false},
+	{"-s", true, false}, {"--strategy", true, false},
+	{"-X", true, false}, {"--strategy-option", true, false},
+	{"-S", false, true}, {"--gpg-sign", false, true},
+	{"--allow-unrelated-histories", false, false},
+	{"--all", false, false},
+	{"-a", false, false}, {"--append", false, false},
+	{"--upload-pack", true, false},
+	{"-f", false, false}, {"--force", false, false},
+	{"-t", false, false}, {"--tags", false, false},
+	{"-p", false, false}, {"--prune", false, false},
+	{"-j", false, true}, {"--jobs", false, true},
+	{"--dry-run", false, false},
+	{"-k", false, false}, {"--keep", false, false},
+	{"--depth", true, false},
+	{"--unshallow", false, false},
+	{"--update-shallow", false, false},
+	{"--refmap", true, false},
+	{"-4", false, false}, {"--ipv4", false, false},
+	{"-6", false, false}, {"--ipv6", false, false},
+}
+
+func parsePullCommand(r CommandLine) {
 	argSize := len(r.Args)
 
-	argsWithoutOptions := []string{}
 	for i := 1; i < argSize; i++ {
 		arg := r.Args[i]
 
-		if !isOptionArg(arg) {
-			argsWithoutOptions = append(argsWithoutOptions, arg)
-		}
-	}
+		var opt GitOption
 
-	if len(argsWithoutOptions) > 0 {
-		r.GitRemoteName = argsWithoutOptions[0]
+		for _, t := range pullOptions {
+			if t.Name == arg || (t.IsPrefix && strings.Index(arg, t.Name) == 0) {
+				opt = &t
+				if t.RequireValue {
+					i++
+				}
+				break
+			}
+		}
+
+		if opt == nil {
+			if isOptionArg(arg) == false {
+				r.GitRemoteName = arg
+			}
+		} else {
+			if opt.Name == "--recurse-submodules" {
+				panic(errors.New("pull options '--recurse-submodules' is not supported"))
+			}
+		}
 	}
 
 	r.PerhapsNeedInstrument = true
 }
 
-func parsePushCommand(r CommandLine) {
-	valueTrue := true
+var fetchOptions = []GitOptionT{
+	{"-v", false, false}, {"--verbose", false, false},
+	{"-q", false, false}, {"--quiet", false, false},
+	{"--all", false, false},
+	{"-a", false, false}, {"--append", false, false},
+	{"--upload-pack", true, false},
+	{"-f", false, false}, {"--force", false, false},
+	{"-m", false, false}, {"--multiple", false, false},
+	{"-t", false, false}, {"--tags", false, false},
+	{"-n", false, false},
+	{"-j", true, false}, {"--jobs", true, false},
+	{"-p", false, false}, {"--prune", false, false},
+	{"-P", false, false}, {"--prune-tags", false, false},
+	{"--recurse-submodules", false, true},
+	{"--dry-run", false, false},
+	{"-k", false, false}, {"--keep", false, false},
+	{"-u", false, false}, {"--update-head-ok", false, false},
+	{"--progress", false, false},
+	{"--depth", true, false},
+	{"--shallow-since", true, false},
+	{"--shallow-exclude", true, false},
+	{"--deepen", true, false},
+	{"--unshallow", false, false},
+	{"--update-shallow", false, false},
+	{"--refmap", true, false},
+	{"-o", true, false}, {"--server-option", true, false},
+	{"-4", false, false}, {"--ipv4", false, false},
+	{"-6", false, false}, {"--ipv6", false, false},
+	{"--negotiation-tip", true, false},
+	{"--filter", false, false},
+}
+
+func parseFetchCommand(r CommandLine) {
 	argSize := len(r.Args)
 
-	argsWithoutOptions := []string{}
 	for i := 1; i < argSize; i++ {
 		arg := r.Args[i]
 
-		if !isOptionArg(arg) {
-			argsWithoutOptions = append(argsWithoutOptions, arg)
+		var opt GitOption
+
+		for _, t := range fetchOptions {
+			if t.Name == arg || (t.IsPrefix && strings.Index(arg, t.Name) == 0) {
+				opt = &t
+				if t.RequireValue {
+					i++
+				}
+				break
+			}
+		}
+
+		if opt == nil {
+			if isOptionArg(arg) == false {
+				r.GitRemoteName = arg
+			}
 		} else {
-			lenOfRepoOptionPrefix := len("--repo=")
-			if len(arg) > lenOfRepoOptionPrefix && arg[0:lenOfRepoOptionPrefix] == "--repo=" {
-				r.GitRemoteName = arg[lenOfRepoOptionPrefix:]
+			if opt.Name == "-m" || opt.Name == "--multiple" {
+				panic(errors.New("fetch options '-m' or '--multiple' is not supported"))
+			}
+			if opt.Name == "--recurse-submodules" {
+				panic(errors.New("fetch options '--recurse-submodules' is not supported"))
 			}
 		}
 	}
 
-	if len(r.GitRemoteName) == 0 {
-		if len(argsWithoutOptions) > 0 {
-			r.GitRemoteName = argsWithoutOptions[0]
+	r.PerhapsNeedInstrument = true
+}
+
+var pushOptions = []GitOptionT{
+	{"-v", false, false}, {"--verbose", false, false},
+	{"-q", false, false}, {"--quiet", false, false},
+	{"--repo", true, false},
+	{"--all", false, false},
+	{"--mirror", false, false},
+	{"-d", false, false}, {"--delete", false, false},
+	{"--tags", false, false},
+	{"-n", false, false}, {"--dry-run", false, false},
+	{"--porcelain", false, false},
+	{"-f", false, false}, {"--force", false, false},
+	{"--force-with-lease", false, true},
+	{"--recurse-submodules", false, true},
+	{"--thin", false, false},
+	{"--receive-pack", true, false},
+	{"--exec", true, false},
+	{"-u", false, false}, {"--set-upstream", false, false},
+	{"--progress", false, false},
+	{"--prune", false, false},
+	{"--no-verify", false, false},
+	{"--follow-tags", false, false},
+	{"--signed", false, true},
+	{"--atomic", false, false},
+	{"-o", true, false}, {"--push-option", true, false},
+	{"-4", false, false}, {"--ipv4", false, false},
+	{"-6", false, false}, {"--ipv6", false, false},
+}
+
+func parsePushCommand(r CommandLine) {
+	valueTrue := true
+	argSize := len(r.Args)
+	argValue := ""
+
+	for i := 1; i < argSize; i++ {
+		arg := r.Args[i]
+
+		var opt GitOption
+
+		for _, t := range pushOptions {
+			if t.Name == arg || (t.IsPrefix && strings.Index(arg, t.Name) == 0) {
+				opt = &t
+				if t.RequireValue {
+					if i < argSize-1 {
+						argValue = r.Args[i+1]
+					}
+					i++
+				}
+				break
+			}
+		}
+
+		if opt == nil {
+			if isOptionArg(arg) == false {
+				r.GitRemoteName = arg
+			}
+		} else {
+			if opt.Name == "--recurse-submodules" {
+				panic(errors.New("pull options '--recurse-submodules' is not supported"))
+			}
+			if opt.Name == "--repo" {
+				r.GitRemoteName = argValue
+			}
 		}
 	}
 
-	r.IsPrivate = &valueTrue
 	r.PerhapsNeedInstrument = true
+
+	r.IsPrivate = &valueTrue
 }
 
 var cloneOptions = []GitOptionT{
