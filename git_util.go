@@ -119,11 +119,6 @@ func ExecGit(workDir string, args []string) string {
 		log.Println("[fgit] git cli: " + strings.Join(args, " "))
 	}
 
-	if Mock {
-		log.Println("[fgit] mocking run: git " + strings.Join(args, " "))
-		return ""
-	}
-
 	if DirExists(workDir) == false {
 		workDir = ExeDirectory()
 	}

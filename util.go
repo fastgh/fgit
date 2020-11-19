@@ -13,9 +13,6 @@ import (
 // Debug ...
 var Debug = false
 
-// Mock ...
-var Mock = false
-
 // FileStat ...
 func FileStat(path string, ensureExists bool) os.FileInfo {
 	r, err := os.Stat(path)

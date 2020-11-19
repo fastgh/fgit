@@ -95,10 +95,6 @@ func filterExtendedArguments(r CommandLine) {
 			Debug = true
 			continue
 		}
-		if arg == "--mock" {
-			Mock = true
-			continue
-		}
 
 		r.Args = append(r.Args, arg)
 	}

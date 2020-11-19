@@ -48,7 +48,6 @@ func main() {
 
 	cmdline := ParseCommandLine()
 	if Debug {
-		log.Printf("[fgit] Mock: %v\n", Mock)
 		log.Printf("[fgit] 命令行: \n%s\n", JSONPretty(cmdline))
 	}
 
