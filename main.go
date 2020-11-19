@@ -48,7 +48,7 @@ func main() {
 
 	cmdline := ParseCommandLine()
 	if Debug {
-		log.Printf("[fgit] 命令行: \n%s\n", JSONPretty(cmdline))
+		log.Printf("[fgit] 命令行1: \n%s\n", JSONPretty(cmdline))
 	}
 
 	if cmdline.PerhapsNeedInstrument == false {
@@ -61,7 +61,7 @@ func main() {
 
 	defer func() {
 		if p := recover(); p != nil {
-			color.Red.Printf("[fgit] 出错: %v\n", p)
+			color.Red.Printf("[fgit] 程序崩溃, 错误原因: %s\n堆栈:\n%s", p, string(debug.Stack()))
 			ResetGithubRemote()
 			return
 		}
@@ -87,11 +87,8 @@ func main() {
 		return
 	}
 
-	var isPrivate bool
-	if cmdline.IsPrivate != nil {
-		isPrivate = *cmdline.IsPrivate
-	} else if len(gitURL.User.Username()) > 0 {
-		isPrivate = true
+	if cmdline.IsPrivate == false && len(gitURL.User.Username()) > 0 {
+		cmdline.IsPrivate = true
 
 		if Debug {
 			log.Println("[fgit] 发现URL中嵌入有用户名，因此设置为私有库模式")
@@ -103,9 +100,13 @@ func main() {
 		log.Printf("[fgit] 配置：\n%s\n", JSONPretty(cfg))
 	}
 
+	if Debug {
+		log.Printf("[fgit] 命令行2: \n%s\n", JSONPretty(cmdline))
+	}
+
 	HookInterruptSignal()
 
-	GithubInstrument(cmdline, isPrivate, cfg)
+	GithubInstrument(cmdline, cfg)
 }
 
 // HookInterruptSignal ...
@@ -121,8 +122,8 @@ func HookInterruptSignal() {
 
 	go func() {
 		defer func() {
-			if e := recover(); e != nil {
-				color.Red.Printf("[fgit] 程序崩溃, 错误原因: %s\n堆栈:\n%s", e, string(debug.Stack()))
+			if p := recover(); p != nil {
+				color.Red.Printf("[fgit] 程序崩溃, 错误原因: %s\n堆栈:\n%s", p, string(debug.Stack()))
 			}
 		}()
 		for range signalChan {

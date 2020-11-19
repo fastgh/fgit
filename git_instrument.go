@@ -26,10 +26,10 @@ type InstrumentContext = *InstrumentContextT
 var instrumentContext = &InstrumentContextT{}
 
 // GithubInstrument ...GithubInstrument
-func GithubInstrument(cmdline CommandLine, isPrivate bool, config Config) {
+func GithubInstrument(cmdline CommandLine, config Config) {
 	ictx := instrumentContext
 
-	if isPrivate {
+	if cmdline.IsPrivate {
 		ictx.UseMirror = false
 	} else {
 		ictx.UseMirror = true

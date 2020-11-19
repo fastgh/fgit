@@ -11,7 +11,7 @@
       "mode": "auto",
       "program": "${fileDirname}",
       "env": {},
-      "args": ["clone", "https://github.com/spring-projects/spring-boot", "--debug"]
+      "args": ["clone", "https://testuser@github.com/spring-projects/spring-boot", "--debug"]
     }
   ]
 }

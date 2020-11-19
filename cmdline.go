@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"strings"
 
@@ -59,7 +60,7 @@ type CommandLineT struct {
 	GitURLText            string
 	ArgIndexOfGitURLText  int
 	PerhapsNeedInstrument bool
-	IsPrivate             *bool
+	IsPrivate             bool
 	Args                  []string
 }
 
@@ -74,7 +75,7 @@ func PrintHelp(errorMode bool) {
 	} else {
 		c = color.Blue
 	}
-	c.Printf("fgit %d.%d.%d - 快50倍的git clone github.com。\n", VersionMajor, VersionMinor, VersionFix)
+	c.Printf("fgit %d.%d.%d - 快50倍的git --> github.com。\n", VersionMajor, VersionMinor, VersionFix)
 }
 
 func (me CommandLine) String() string {
@@ -82,13 +83,11 @@ func (me CommandLine) String() string {
 }
 
 func filterExtendedArguments(r CommandLine) {
-	valueTrue := true
-
 	for i := 1; i < len(os.Args); i++ {
 		arg := os.Args[i]
 
 		if arg == "--private" {
-			r.IsPrivate = &valueTrue
+			r.IsPrivate = true
 			continue
 		}
 		if arg == "--debug" {
@@ -101,8 +100,6 @@ func filterExtendedArguments(r CommandLine) {
 }
 
 func resolveSubCommand(r CommandLine) {
-	valueTrue := true
-
 	arg0 := r.Args[0]
 	if isOptionArg(arg0) {
 		return
@@ -120,15 +117,13 @@ func resolveSubCommand(r CommandLine) {
 		r.SubCommand = arg0
 		r.PerhapsNeedInstrument = true
 		if arg0 == "push" {
-			r.IsPrivate = &valueTrue
+			r.IsPrivate = true
 		}
 	}
 }
 
 // ParseCommandLine ...
 func ParseCommandLine() CommandLine {
-	valueFalse := false
-
 	r := &CommandLineT{
 		SubCommand:            "",
 		GitRemoteName:         "origin",
@@ -137,7 +132,7 @@ func ParseCommandLine() CommandLine {
 		GitURLText:            "",
 		ArgIndexOfGitURLText:  -1,
 		PerhapsNeedInstrument: false,
-		IsPrivate:             &valueFalse,
+		IsPrivate:             false,
 		Args:                  []string{},
 	}
 
@@ -321,11 +316,8 @@ func parseFetchCommand(r CommandLine) {
 				r.GitRemoteName = arg
 			}
 		} else {
-			if opt.Name == "-m" || opt.Name == "--multiple" {
-				panic(errors.New("fetch options '-m' or '--multiple' is not supported"))
-			}
-			if opt.Name == "--recurse-submodules" {
-				panic(errors.New("fetch options '--recurse-submodules' is not supported"))
+			if opt.Name == "-m" || opt.Name == "--multiple" || opt.Name == "--recurse-submodules" {
+				panic(fmt.Errorf("fetch options '%s' is not supported", opt.Name))
 			}
 		}
 	}
@@ -362,7 +354,6 @@ var pushOptions = append(commonOptions, []GitOptionT{
 }...)
 
 func parsePushCommand(r CommandLine) {
-	valueTrue := true
 	argSize := len(r.Args)
 	argValue := ""
 
@@ -393,7 +384,7 @@ func parsePushCommand(r CommandLine) {
 			}
 		} else {
 			if opt.Name == "--recurse-submodules" {
-				panic(errors.New("pull options '--recurse-submodules' is not supported"))
+				panic(errors.New("push options '--recurse-submodules' is not supported"))
 			}
 			if opt.Name == "--repo" {
 				r.GitRemoteName = argValue
@@ -403,7 +394,7 @@ func parsePushCommand(r CommandLine) {
 
 	r.PerhapsNeedInstrument = true
 
-	r.IsPrivate = &valueTrue
+	r.IsPrivate = true
 }
 
 var cloneOptions = []GitOptionT{
@@ -418,6 +409,7 @@ var cloneOptions = []GitOptionT{
 	{"--no-hardlinks", false, false},
 	{"-s", false, false}, {"--shared", false, false},
 	{"--recursive", false, true},
+	{"----recurse-submodules", false, true},
 	{"-j", true, false}, {"--jobs", true, false},
 	{"--template", true, false},
 	{"--reference", true, false},
@@ -471,6 +463,8 @@ func parseGitCloneCommandLine(r CommandLine) {
 					r.ArgIndexOfGitURLText = i
 					r.GitURLText = argValue
 				}
+			} else if opt.Name == "--recursive" || opt.Name == "----recurse-submodules" {
+				panic(fmt.Errorf("clone options '%s' is not supported", opt.Name))
 			}
 		} else if isOptionArg(arg) == false {
 			if len(r.GitURLText) == 0 {

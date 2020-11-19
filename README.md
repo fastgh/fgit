@@ -1,5 +1,5 @@
 # fgit
-快100倍的`git clone github.com`，为国内开发者
+快100倍的"git --> github.com"，为国内开发者
 
 ## Download:
   For Windows, download https://github.com/fastgh/fgit/releases/download/v1.0.0/fgit.exe, save it to executive path.
