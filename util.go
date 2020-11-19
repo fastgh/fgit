@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"github.com/pkg/errors"
 )
@@ -91,4 +92,14 @@ func JSONUnmarshal(jsonText string, v interface{}) {
 	if err := json.Unmarshal([]byte(jsonText), v); err != nil {
 		panic(errors.Wrapf(err, "JSON反序列化失败: %s\n", jsonText))
 	}
+}
+
+// ExeDirectory ...
+func ExeDirectory() string {
+	exePath := os.Args[0]
+	r, err := filepath.Abs(filepath.Dir(exePath))
+	if err != nil {
+		panic(errors.Wrapf(err, "failed to get absolute directory path for "+exePath))
+	}
+	return r
 }

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/gookit/color"
+	"github.com/mitchellh/go-homedir"
 )
 
 const (
@@ -29,12 +30,33 @@ type GitOptionT struct {
 // GitOption ...
 type GitOption = *GitOptionT
 
+var commonOptions = []GitOptionT{
+	{"--version", false, false},
+	{"--help", false, false},
+	{"-C", true, false},
+	{"-c", true, false},
+	{"--exec-path", false, true},
+	{"--html-path", false, false},
+	{"--man-path", false, false},
+	{"--info-path", false, false},
+	{"-p", false, false},
+	{"--paginate", false, false},
+	{"-P", false, false},
+	{"--no-pager", false, false},
+	{"--no-replace-objects", false, false},
+	{"--bare", false, false},
+	{"--git-dir", false, true},
+	{"--work-tree", false, true},
+	{"--namespace", false, true},
+}
+
 // CommandLineT ...
 type CommandLineT struct {
 	SubCommand            string
 	GitRemoteName         string
 	IsGitClone            bool
 	GitCloneDir           string
+	GitDir                string
 	GitURLText            string
 	ArgIndexOfGitURLText  int
 	PerhapsNeedInstrument bool
@@ -116,7 +138,7 @@ func ParseCommandLine() CommandLine {
 		SubCommand:            "",
 		GitRemoteName:         "origin",
 		IsGitClone:            false,
-		GitCloneDir:           "",
+		GitDir:                "",
 		GitURLText:            "",
 		ArgIndexOfGitURLText:  -1,
 		PerhapsNeedInstrument: false,
@@ -162,10 +184,19 @@ func ParseCommandLine() CommandLine {
 		r.GitURLText = ResolveGitURLText(r.GitURLText, r.GitRemoteName, r.IsGitClone)
 	}
 
+	if len(r.GitDir) == 0 {
+		r.GitDir = ExeDirectory()
+	} else {
+		t, err := homedir.Expand(r.GitDir)
+		if err != nil {
+			r.GitDir = t
+		}
+	}
+
 	return r
 }
 
-var pullOptions = []GitOptionT{
+var pullOptions = append(commonOptions, []GitOptionT{
 	{"-v", false, false}, {"--verbose", false, false},
 	{"-q", false, false}, {"--quiet", false, false},
 	{"--progress", false, false},
@@ -204,7 +235,7 @@ var pullOptions = []GitOptionT{
 	{"-6", false, false}, {"--ipv6", false, false},
 	{"--show-forced-updates", false, false},
 	{"--set-upstream", false, false},
-}
+}...)
 
 func parsePullCommand(r CommandLine) {
 	argSize := len(r.Args)
@@ -219,6 +250,9 @@ func parsePullCommand(r CommandLine) {
 				opt = &t
 				if t.RequireValue {
 					i++
+				}
+				if t.Name == "--git-dir" {
+					r.GitDir = extractPrefixedOptionValue(arg)
 				}
 				break
 			}
@@ -238,7 +272,7 @@ func parsePullCommand(r CommandLine) {
 	r.PerhapsNeedInstrument = true
 }
 
-var fetchOptions = []GitOptionT{
+var fetchOptions = append(commonOptions, []GitOptionT{
 	{"-v", false, false}, {"--verbose", false, false},
 	{"-q", false, false}, {"--quiet", false, false},
 	{"--all", false, false},
@@ -272,7 +306,7 @@ var fetchOptions = []GitOptionT{
 	{"--auto-gc", false, false},
 	{"--show-forced-updates", false, false},
 	{"--write-commit-graph", false, false},
-}
+}...)
 
 func parseFetchCommand(r CommandLine) {
 	argSize := len(r.Args)
@@ -287,6 +321,9 @@ func parseFetchCommand(r CommandLine) {
 				opt = &t
 				if t.RequireValue {
 					i++
+				}
+				if t.Name == "--git-dir" {
+					r.GitDir = extractPrefixedOptionValue(arg)
 				}
 				break
 			}
@@ -309,7 +346,7 @@ func parseFetchCommand(r CommandLine) {
 	r.PerhapsNeedInstrument = true
 }
 
-var pushOptions = []GitOptionT{
+var pushOptions = append(commonOptions, []GitOptionT{
 	{"-v", false, false}, {"--verbose", false, false},
 	{"-q", false, false}, {"--quiet", false, false},
 	{"--repo", true, false},
@@ -335,7 +372,7 @@ var pushOptions = []GitOptionT{
 	{"-o", true, false}, {"--push-option", true, false},
 	{"-4", false, false}, {"--ipv4", false, false},
 	{"-6", false, false}, {"--ipv6", false, false},
-}
+}...)
 
 func parsePushCommand(r CommandLine) {
 	valueTrue := true
@@ -355,6 +392,9 @@ func parsePushCommand(r CommandLine) {
 						argValue = r.Args[i+1]
 					}
 					i++
+				}
+				if t.Name == "--git-dir" {
+					r.GitDir = extractPrefixedOptionValue(arg)
 				}
 				break
 			}
@@ -472,4 +512,12 @@ func parseGitCloneCommandLine(r CommandLine) {
 
 func isOptionArg(arg string) bool {
 	return len(arg) > 0 && arg[0:1] == "-"
+}
+
+func extractPrefixedOptionValue(arg string) string {
+	posOfSeparator := strings.Index(arg, "=")
+	if posOfSeparator > 0 && posOfSeparator != len(arg)-1 {
+		return arg[posOfSeparator+1:]
+	}
+	return ""
 }

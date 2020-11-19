@@ -40,7 +40,7 @@ func GithubInstrument(cmdline CommandLine, isPrivate bool, config Config) {
 		ictx.WorkDir = cmdline.GitCloneDir
 	} else {
 		ictx.Global = false
-		ictx.WorkDir = ""
+		ictx.WorkDir = cmdline.GitDir
 	}
 
 	if Debug {
