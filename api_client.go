@@ -11,14 +11,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-const (
-	// ControlServerURL ...
-	ControlServerURL = "http://control.fastgithub.com:7000/api/v1"
-
-	// ReleaseDownloadURL ...
-	ReleaseDownloadURL = "https://github.com/fastgh/fgit/releases"
-)
-
 // HTTPProxyServerInfoT ...
 type HTTPProxyServerInfoT struct {
 	Protocol     string `json:"protocol"`
@@ -34,8 +26,8 @@ type HTTPProxyServerInfoT struct {
 type HTTPProxyServerInfo = *HTTPProxyServerInfoT
 
 // ListAllHTTPProxyServers ...
-func ListAllHTTPProxyServers() []HTTPProxyServerInfo {
-	apiURL := fmt.Sprintf("%s/servers/proxy?for=github.com", ControlServerURL)
+func ListAllHTTPProxyServers(controlServerURL string) []HTTPProxyServerInfo {
+	apiURL := fmt.Sprintf("%s/servers/proxy?for=github.com", controlServerURL)
 
 	if Debug {
 		log.Printf("[fgit] 正在查询可用的代理服务器: %s\n", apiURL)
@@ -63,8 +55,8 @@ func ListAllHTTPProxyServers() []HTTPProxyServerInfo {
 }
 
 // SelectProxy ...
-func SelectProxy() HTTPProxyServerInfo {
-	proxies := ListAllHTTPProxyServers()
+func SelectProxy(controlServerURL string, releaseDownloadURL string) HTTPProxyServerInfo {
+	proxies := ListAllHTTPProxyServers(controlServerURL)
 	if proxies == nil || len(proxies) == 0 {
 		if Debug {
 			log.Println("[fgit] 没有可用的代理服务器")
@@ -77,20 +69,20 @@ func SelectProxy() HTTPProxyServerInfo {
 		panic(fmt.Errorf("当前的fgit客户端版本是%d.%d.%d。该版本和服务器要求的版本%d.%d.%d不兼容。请在%s重新下载",
 			VersionMajor, VersionMinor, VersionFix,
 			r.VersionMajor, r.VersionMinor, r.VersionFix,
-			ReleaseDownloadURL,
+			releaseDownloadURL,
 		))
 	}
 
 	if Debug {
-		log.Printf("[fgit] 使用代理服务器: %s\n", JSONPretty(r))
+		log.Printf("[fgit] 选择代理服务器: %s\n", JSONPretty(r))
 	}
 
 	return r
 }
 
 // ListAllMirrors ...
-func ListAllMirrors() []string {
-	apiURL := fmt.Sprintf("%s/servers/mirror?for=github.com", ControlServerURL)
+func ListAllMirrors(controlServerURL string) []string {
+	apiURL := fmt.Sprintf("%s/servers/mirror?for=github.com", controlServerURL)
 
 	if Debug {
 		log.Printf("[fgit] 正在查询可用的镜像服务器: %s\n", apiURL)
@@ -118,8 +110,8 @@ func ListAllMirrors() []string {
 }
 
 // SelectMirror ...
-func SelectMirror() string {
-	mirrors := ListAllMirrors()
+func SelectMirror(controlServerURL string) string {
+	mirrors := ListAllMirrors(controlServerURL)
 	if mirrors == nil || len(mirrors) == 0 {
 		if Debug {
 			log.Println("[fgit] 没有可用的镜像服务器")
@@ -129,15 +121,15 @@ func SelectMirror() string {
 
 	r := mirrors[rand.Intn(len(mirrors))]
 	if Debug {
-		log.Printf("[fgit] 使用代理服务器: %s\n", JSONPretty(r))
+		log.Printf("[fgit] 选择代理服务器: %s\n", JSONPretty(r))
 	}
 
 	return r
 }
 
 // CreateAccount ...
-func CreateAccount(password string) string {
-	apiURL := fmt.Sprintf("%s/account?password=%s", ControlServerURL, password)
+func CreateAccount(controlServerURL string, password string) string {
+	apiURL := fmt.Sprintf("%s/account?password=%s", controlServerURL, password)
 
 	if Debug {
 		log.Printf("[fgit] 正在注册账号: %s\n", apiURL)
@@ -165,8 +157,8 @@ func CreateAccount(password string) string {
 }
 
 // LoginByID ...
-func LoginByID(accountID string, password string) string {
-	apiURL := fmt.Sprintf("%s/account/_/%s/LoginByID?password=%s", ControlServerURL, accountID, password)
+func LoginByID(controlServerURL string, accountID string, password string) string {
+	apiURL := fmt.Sprintf("%s/account/_/%s/LoginByID?password=%s", controlServerURL, accountID, password)
 
 	if Debug {
 		log.Printf("[fgit] 正在登录: %s\n", apiURL)

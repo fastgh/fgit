@@ -12,6 +12,11 @@ import (
 	"github.com/pkg/errors"
 )
 
+const (
+	defaultControlServerURL   = "https://control.fastgithub.com:7443/api/v1"
+	defaultReleaseDownloadURL = "https://github.com/fastgh/fgit/releases"
+)
+
 func init() {
 	rand.Seed(time.Now().UnixNano()) //将时间戳设置成种子数
 }
@@ -28,9 +33,11 @@ type Account = *AccountT
 
 // ConfigT ...
 type ConfigT struct {
-	Account Account `json:"account"`
-	Mirror  string  `json:"mirror"`
-	Proxy   string  `json:"proxy"`
+	Account            Account `json:"account"`
+	ControlServerURL   string  `json:"controlServerURL"`
+	ReleaseDownloadURL string  `json:"releaseDownloadURL"`
+	Mirror             string  `json:"mirror"`
+	Proxy              string  `json:"proxy"`
 }
 
 // Config ...
@@ -42,7 +49,7 @@ func LoadConfig() Config {
 
 	if !FileExists(path) {
 		password := NewUUID()
-		accountID := CreateAccount(password)
+		accountID := CreateAccount(defaultControlServerURL, password)
 
 		account := &AccountT{
 			ID:       accountID,
@@ -50,18 +57,29 @@ func LoadConfig() Config {
 		}
 
 		SaveConfigJSONFile(path, &ConfigT{
-			Account: account,
+			Account:            account,
+			ControlServerURL:   defaultControlServerURL,
+			ReleaseDownloadURL: defaultReleaseDownloadURL,
 		})
 	}
+
 	r := ConfigWithJSONFile(path)
+	if len(r.ControlServerURL) == 0 {
+		r.ControlServerURL = defaultControlServerURL
+	}
+	if len(r.ReleaseDownloadURL) == 0 {
+		r.ReleaseDownloadURL = defaultReleaseDownloadURL
+	}
 
-	token := LoginByID(r.Account.ID, r.Account.Password)
+	token := LoginByID(defaultControlServerURL, r.Account.ID, r.Account.Password)
 
-	proxy := SelectProxy()
-	r.Proxy = fmt.Sprintf("%s://%s:%s@%s:%d", proxy.Protocol, r.Account.ID, token, proxy.Host, proxy.Port)
+	if len(r.Proxy) == 0 {
+		proxy := SelectProxy(r.ControlServerURL, r.ReleaseDownloadURL)
+		r.Proxy = fmt.Sprintf("%s://%s:%s@%s:%d", proxy.Protocol, r.Account.ID, token, proxy.Host, proxy.Port)
+	}
 
 	if len(r.Mirror) == 0 {
-		r.Mirror = "https://github.com.cnpmjs.org"
+		r.Mirror = SelectMirror(r.ControlServerURL)
 	}
 
 	return r
