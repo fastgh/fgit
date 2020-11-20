@@ -61,7 +61,7 @@ type CommandLineT struct {
 	GitURLText            string
 	ArgIndexOfGitURLText  int
 	PerhapsNeedInstrument bool
-	IsPrivate             bool
+	UseProxy              bool
 	Args                  []string
 }
 
@@ -88,8 +88,8 @@ func filterExtendedArguments(r CommandLine) {
 	for i := 1; i < len(os.Args); i++ {
 		arg := os.Args[i]
 
-		if arg == "--private" {
-			r.IsPrivate = true
+		if arg == "--use-proxy" {
+			r.UseProxy = true
 			continue
 		}
 		if arg == "--debug" {
@@ -119,7 +119,7 @@ func resolveSubCommand(r CommandLine) {
 		r.SubCommand = arg0
 		r.PerhapsNeedInstrument = true
 		if arg0 == "push" {
-			r.IsPrivate = true
+			r.UseProxy = true
 		}
 	}
 }
@@ -134,7 +134,7 @@ func ParseCommandLine() CommandLine {
 		GitURLText:            "",
 		ArgIndexOfGitURLText:  -1,
 		PerhapsNeedInstrument: false,
-		IsPrivate:             false,
+		UseProxy:              false,
 		Args:                  []string{},
 	}
 
@@ -410,7 +410,7 @@ func parsePushCommand(r CommandLine) {
 
 	r.PerhapsNeedInstrument = true
 
-	r.IsPrivate = true
+	r.UseProxy = true
 }
 
 var cloneOptions = []GitOptionT{

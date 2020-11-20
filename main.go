@@ -82,11 +82,11 @@ func main() {
 		panic(fmt.Errorf("fgit不支持%s，仅支持https", gitURL.Scheme))
 	}
 
-	if cmdline.IsPrivate == false && len(gitURL.User.Username()) > 0 {
-		cmdline.IsPrivate = true
+	if cmdline.UseProxy == false && len(gitURL.User.Username()) > 0 {
+		cmdline.UseProxy = true
 
 		if Debug {
-			log.Println("[fgit] 发现URL中嵌入有用户名，因此设置为私有库模式")
+			log.Println("[fgit] 发现URL中嵌入有用户名，因此改为使用代理服务器")
 		}
 	}
 

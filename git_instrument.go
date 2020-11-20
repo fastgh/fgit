@@ -29,7 +29,7 @@ var instrumentContext = &InstrumentContextT{}
 func GithubInstrument(cmdline CommandLine, config Config) {
 	ictx := instrumentContext
 
-	if cmdline.IsPrivate {
+	if cmdline.UseProxy {
 		ictx.UseMirror = false
 	} else {
 		ictx.UseMirror = true
