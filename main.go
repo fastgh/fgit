@@ -45,7 +45,7 @@ func main() {
 
 	cmdline := ParseCommandLine()
 	if Debug {
-		log.Printf("[fgit] 命令行1: \n%s\n", JSONPretty(cmdline))
+		log.Printf("[fgit] 命令行1: %s\n", JSONPretty(cmdline))
 	}
 
 	if cmdline.PerhapsNeedInstrument == false {

@@ -56,7 +56,7 @@ func ListAllHTTPProxyServers() []HTTPProxyServerInfo {
 	JSONUnmarshal(string(body), &r)
 
 	if Debug {
-		log.Printf("[fgit] 查询到可用的代理服务器: \n%s\n", JSONPretty(r))
+		log.Printf("[fgit] 查询到可用的代理服务器: %s\n", JSONPretty(r))
 	}
 
 	return r
@@ -82,7 +82,7 @@ func SelectProxy() HTTPProxyServerInfo {
 	}
 
 	if Debug {
-		log.Printf("[fgit] 使用代理服务器: \n%s\n", JSONPretty(r))
+		log.Printf("[fgit] 使用代理服务器: %s\n", JSONPretty(r))
 	}
 
 	return r
@@ -111,7 +111,7 @@ func ListAllMirrors() []string {
 	JSONUnmarshal(string(body), &r)
 
 	if Debug {
-		log.Printf("[fgit] 查询到可用的镜像服务器: \n%s\n", JSONPretty(r))
+		log.Printf("[fgit] 查询到可用的镜像服务器: %s\n", JSONPretty(r))
 	}
 
 	return r
@@ -129,7 +129,7 @@ func SelectMirror() string {
 
 	r := mirrors[rand.Intn(len(mirrors))]
 	if Debug {
-		log.Printf("[fgit] 使用代理服务器: \n%s\n", JSONPretty(r))
+		log.Printf("[fgit] 使用代理服务器: %s\n", JSONPretty(r))
 	}
 
 	return r
@@ -154,10 +154,11 @@ func CreateAccount(password string) string {
 		panic(errors.Wrap(err, "账号注册失败"))
 	}
 
-	accountID := string(body)
+	var accountID string
+	JSONUnmarshal(string(body), &accountID)
 
 	if Debug {
-		log.Printf("[fgit] 账号注册成功: \n%s\n", accountID)
+		log.Printf("[fgit] 账号注册成功: %s\n", accountID)
 	}
 
 	return accountID
@@ -171,7 +172,7 @@ func LoginByID(accountID string, password string) string {
 		log.Printf("[fgit] 正在登录: %s\n", apiURL)
 	}
 
-	resp, err := http.Post(apiURL, "application/json", strings.NewReader(""))
+	resp, err := http.Get(apiURL)
 	if err != nil {
 		panic(errors.Wrap(err, "登录失败"))
 	}
@@ -182,10 +183,11 @@ func LoginByID(accountID string, password string) string {
 		panic(errors.Wrap(err, "登录失败"))
 	}
 
-	r := string(body)
+	var r string
+	JSONUnmarshal(string(body), &r)
 
 	if Debug {
-		log.Printf("[fgit] 登录成功: \n%s\n", r)
+		log.Printf("[fgit] 登录成功: %s\n", r)
 	}
 
 	return r
