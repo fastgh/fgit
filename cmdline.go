@@ -165,9 +165,11 @@ func ParseCommandLine() CommandLine {
 		return r
 	}
 
-	if !r.IsGitClone {
-		if len(r.GitRemoteName) == 0 {
+	if len(r.GitRemoteName) == 0 {
+		if !r.IsGitClone {
 			r.GitRemoteName = ResolveGitRemoteName("")
+		} else {
+			r.GitRemoteName = "origin"
 		}
 	}
 
