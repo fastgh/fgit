@@ -4,13 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"math/rand"
 	"os"
 	"os/signal"
 	"runtime/debug"
 	"strings"
 	"syscall"
-	"time"
 
 	"github.com/gookit/color"
 )
@@ -42,8 +40,6 @@ func oldGit(cmdline CommandLine, fgitHelpFirst bool, errorMode bool) {
 }
 
 func main() {
-
-	rand.Seed(time.Now().UnixNano())
 
 	//TODO: recover
 

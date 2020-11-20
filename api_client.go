@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gookit/color"
 	"github.com/pkg/errors"
 )
 
@@ -90,9 +89,8 @@ func SelectProxy() HTTPProxyServerInfo {
 }
 
 // CreateAccount ...
-func CreateAccount(email string, password string) Account {
-	apiURL := fmt.Sprintf("%s/account?email=%s", ControlServerURL, email)
-	color.Blue.Println("[fgit] 正在注册账号...")
+func CreateAccount(password string) string {
+	apiURL := fmt.Sprintf("%s/account?password=%s", ControlServerURL, password)
 
 	if Debug {
 		log.Printf("[fgit] 正在注册账号: %s\n", apiURL)
@@ -109,17 +107,18 @@ func CreateAccount(email string, password string) Account {
 		panic(errors.Wrap(err, "账号注册失败"))
 	}
 
-	var r Account
-	JSONUnmarshal(string(body), &r)
+	accountID := string(body)
 
-	color.Blue.Printf("[fgit] 账号注册成功: \n%s\n", JSONPretty(r))
+	if Debug {
+		log.Printf("[fgit] 账号注册成功: \n%s\n", accountID)
+	}
 
-	return r
+	return accountID
 }
 
 // LoginByID ...
 func LoginByID(accountId string, password string) string {
-	apiURL := fmt.Sprintf("%s/account/_/%s/login?password=%s", ControlServerURL, accountId, password)
+	apiURL := fmt.Sprintf("%s/account/_/%s/LoginByID?password=?", ControlServerURL, accountId, password)
 
 	if Debug {
 		log.Printf("[fgit] 正在登录: %s\n", apiURL)
@@ -139,7 +138,8 @@ func LoginByID(accountId string, password string) string {
 	r := string(body)
 
 	if Debug {
-		log.Printf("[fgit] 登录成功: \n%s\n", r))
+		log.Printf("[fgit] 登录成功: \n%s\n", r)
 	}
+
 	return r
 }

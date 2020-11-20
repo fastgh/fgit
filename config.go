@@ -3,16 +3,22 @@ package main
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"path/filepath"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 )
 
+func init() {
+	rand.Seed(time.Now().UnixNano()) //将时间戳设置成种子数
+}
+
 // AccountT ...
 type AccountT struct {
 	ID        string `json:"id"`
-	Email     string `json:"email"`
 	Password  string `json:"password"`
 	CreatedAt int64  `json:"createdAt"`
 }
@@ -30,45 +36,29 @@ type ConfigT struct {
 // Config ...
 type Config = *ConfigT
 
-func InputEmail() string {
-	var email string
-	fmt.Scanf("请输入注册邮件：%s", &email)
-	return email
-}
-
-func InputPassword() string {
-	var password string
-	fmt.Scanf("请输入密码：%s", &password)
-	return password
-}
-
-func InputPasswordAgain() string {
-	var password string
-	fmt.Scanf("请再次输入密码：%s", &password)
-	return password
-}
-
-//
- LoadConfig ...
+// LoadConfig ...
 func LoadConfig() Config {
 	path := GetConfigJSONFilePath()
 
 	if !FileExists(path) {
-		var email string
-		fmt.Scanf("请输入注册邮件：%s", &email)
+		password := NewUUID()
+		accountID := CreateAccount(password)
 
-		var password string
-		fmt.Scanf("请输入密码：%s", &password)
+		account := &AccountT{
+			ID:       accountID,
+			Password: password,
+		}
 
-		account := CreateAccount(email, password)
 		SaveConfigJSONFile(path, &ConfigT{
 			Account: account,
 		})
 	}
 	r := ConfigWithJSONFile(path)
 
+	token := LoginByID(r.Account.ID, r.Account.Password)
+
 	proxy := SelectProxy()
-	r.Proxy = fmt.Sprintf("%s://%s:%s@%s:%d", proxy.Protocol, r.Account.ID, "NA", proxy.Host, proxy.Port)
+	r.Proxy = fmt.Sprintf("%s://%s:%s@%s:%d", proxy.Protocol, r.Account.ID, token, proxy.Host, proxy.Port)
 
 	if len(r.Mirror) == 0 {
 		r.Mirror = "https://github.com.cnpmjs.org"
@@ -109,4 +99,13 @@ func GetConfigJSONFilePath() string {
 	}
 
 	return r
+}
+
+// NewUUID ...
+func NewUUID() string {
+	newUUID, err := uuid.NewUUID()
+	if err != nil {
+		panic(errors.Wrap(err, "UUID生成失败"))
+	}
+	return newUUID.String()
 }
