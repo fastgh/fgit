@@ -139,7 +139,7 @@ func LoginByID(accountId string, password string) string {
 	r := string(body)
 
 	if Debug {
-		log.Printf("[fgit] 登录成功: \n%s\n", r))
+		log.Printf("[fgit] 登录成功: \n%s\n", r)
 	}
 	return r
 }
