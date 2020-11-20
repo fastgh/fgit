@@ -35,7 +35,7 @@ type HTTPProxyServerInfo = *HTTPProxyServerInfoT
 
 // ListAllHTTPProxyServers ...
 func ListAllHTTPProxyServers() []HTTPProxyServerInfo {
-	apiURL := fmt.Sprintf("%s/servers/proxies?type=github.com", ControlServerURL)
+	apiURL := fmt.Sprintf("%s/servers/proxy?for=github.com", ControlServerURL)
 
 	if Debug {
 		log.Printf("[fgit] 正在查询可用的代理服务器: %s\n", apiURL)
@@ -88,6 +88,53 @@ func SelectProxy() HTTPProxyServerInfo {
 	return r
 }
 
+// ListAllMirrors ...
+func ListAllMirrors() []string {
+	apiURL := fmt.Sprintf("%s/servers/mirror?for=github.com", ControlServerURL)
+
+	if Debug {
+		log.Printf("[fgit] 正在查询可用的镜像服务器: %s\n", apiURL)
+	}
+
+	resp, err := http.Get(apiURL)
+	if err != nil {
+		panic(errors.Wrap(err, "查询可用的镜像服务器时失败"))
+	}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		panic(errors.Wrap(err, "查询可用的镜像服务器时失败"))
+	}
+
+	var r []string
+	JSONUnmarshal(string(body), &r)
+
+	if Debug {
+		log.Printf("[fgit] 查询到可用的镜像服务器: \n%s\n", JSONPretty(r))
+	}
+
+	return r
+}
+
+// SelectMirror ...
+func SelectMirror() string {
+	mirrors := ListAllMirrors()
+	if mirrors == nil || len(mirrors) == 0 {
+		if Debug {
+			log.Println("[fgit] 没有可用的镜像服务器")
+		}
+		return ""
+	}
+
+	r := mirrors[rand.Intn(len(mirrors))]
+	if Debug {
+		log.Printf("[fgit] 使用代理服务器: \n%s\n", JSONPretty(r))
+	}
+
+	return r
+}
+
 // CreateAccount ...
 func CreateAccount(password string) string {
 	apiURL := fmt.Sprintf("%s/account?password=%s", ControlServerURL, password)
@@ -117,8 +164,8 @@ func CreateAccount(password string) string {
 }
 
 // LoginByID ...
-func LoginByID(accountId string, password string) string {
-	apiURL := fmt.Sprintf("%s/account/_/%s/LoginByID?password=?", ControlServerURL, accountId, password)
+func LoginByID(accountID string, password string) string {
+	apiURL := fmt.Sprintf("%s/account/_/%s/LoginByID?password=%s", ControlServerURL, accountID, password)
 
 	if Debug {
 		log.Printf("[fgit] 正在登录: %s\n", apiURL)
