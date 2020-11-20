@@ -64,10 +64,10 @@ func LoadConfig() Config {
 	}
 
 	r := ConfigWithJSONFile(path)
-	if len(r.ControlServerURL) == 0 {
+	if !Debug || len(r.ControlServerURL) == 0 {
 		r.ControlServerURL = defaultControlServerURL
 	}
-	if len(r.ReleaseDownloadURL) == 0 {
+	if !Debug || len(r.ReleaseDownloadURL) == 0 {
 		r.ReleaseDownloadURL = defaultReleaseDownloadURL
 	}
 
