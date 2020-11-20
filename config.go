@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	defaultControlServerURL   = "https://control.fastgithub.com/api/v1"
+	defaultControlServerURL   = "https://control.fastgithub.com:10443/api/v1"
 	defaultReleaseDownloadURL = "https://github.com/fastgh/fgit/releases"
 )
 
