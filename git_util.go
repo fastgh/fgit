@@ -13,7 +13,7 @@ import (
 )
 
 // ConfigGitHTTPProxy ...
-func ConfigGitHTTPProxy(workDir string, global bool, newHTTPProxy, newHTTPSProxy string) (oldHTTPProxy, oldHTTPSProxy string) {
+func ConfigGitHTTPProxy(workDir string, global bool, newHTTPProxy string) (oldHTTPProxy, oldHTTPProxyAuthMethod string) {
 	var scope string
 	if global {
 		scope = "--global"
@@ -26,19 +26,19 @@ func ConfigGitHTTPProxy(workDir string, global bool, newHTTPProxy, newHTTPSProxy
 	if strings.Index(oldHTTPProxy, "exit") >= 0 {
 		oldHTTPProxy = ""
 	}
-	oldHTTPSProxy = ExecGit(false, workDir, []string{"config", scope, "--get", "https.https://github.com.proxy"})
-	if strings.Index(oldHTTPSProxy, "exit") >= 0 {
-		oldHTTPSProxy = ""
+	oldHTTPProxyAuthMethod = ExecGit(false, workDir, []string{"config", scope, "--get", "http.https://github.com.proxyAuthMethod"})
+	if strings.Index(oldHTTPProxyAuthMethod, "exit") >= 0 {
+		oldHTTPProxyAuthMethod = ""
 	}
 
 	ExecGit(false, workDir, []string{"config", scope, "http.https://github.com.proxy", newHTTPProxy})
-	ExecGit(false, workDir, []string{"config", scope, "https.https://github.com.proxy", newHTTPSProxy})
+	ExecGit(false, workDir, []string{"config", scope, "http.https://github.com.proxyAuthMethod", "basic"})
 
 	return
 }
 
 // SetGitHTTPProxy ...
-func SetGitHTTPProxy(workDir string, global bool, oldHTTPProxy, oldHTTPSProxy string) {
+func SetGitHTTPProxy(workDir string, global bool, oldHTTPProxy, oldHTTPProxyAuthMethod string) {
 	var scope string
 	if global {
 		scope = "--global"
@@ -51,10 +51,10 @@ func SetGitHTTPProxy(workDir string, global bool, oldHTTPProxy, oldHTTPSProxy st
 		ExecGit(false, workDir, []string{"config", scope, "--unset-all", "http.https://github.com.proxy"})
 	}
 
-	if len(oldHTTPSProxy) > 0 {
-		ExecGit(false, workDir, []string{"config", scope, "https.https://github.com.proxy", oldHTTPSProxy})
+	if len(oldHTTPProxyAuthMethod) > 0 {
+		ExecGit(false, workDir, []string{"config", scope, "https.https://github.com.proxyAuthMethod", oldHTTPProxyAuthMethod})
 	} else {
-		ExecGit(false, workDir, []string{"config", scope, "--unset-all", "https.https://github.com.proxy"})
+		ExecGit(false, workDir, []string{"config", scope, "--unset-all", "https.https://github.com.proxyAuthMethod"})
 	}
 }
 

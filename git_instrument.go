@@ -9,15 +9,15 @@ import (
 
 // InstrumentContextT ...
 type InstrumentContextT struct {
-	OldHTTPProxy  string
-	OldHTTPSProxy string
-	UseMirror     bool
-	WorkDir       string
-	Global        bool
-	ShouldReset   bool
-	MirroredURL   string
-	OriginalURL   string
-	RemoteName    string
+	OldHTTPProxy           string
+	oldHTTPProxyAuthMethod string
+	UseMirror              bool
+	WorkDir                string
+	Global                 bool
+	ShouldReset            bool
+	MirroredURL            string
+	OriginalURL            string
+	RemoteName             string
 }
 
 // InstrumentContext ...
@@ -68,7 +68,7 @@ func GithubInstrument(cmdline CommandLine, config Config) {
 		if Debug {
 			log.Println("[fgit] 设置代理")
 		}
-		ictx.OldHTTPProxy, ictx.OldHTTPSProxy = ConfigGitHTTPProxy(ictx.WorkDir, ictx.Global, config.Proxy, config.Proxy)
+		ictx.OldHTTPProxy, ictx.oldHTTPProxyAuthMethod = ConfigGitHTTPProxy(ictx.WorkDir, ictx.Global, config.Proxy)
 	}
 	ictx.ShouldReset = true
 
@@ -97,7 +97,7 @@ func ResetGithubRemote() {
 			if Debug {
 				log.Println("[fgit] 重置代理")
 			}
-			SetGitHTTPProxy(ictx.WorkDir, ictx.Global, ictx.OldHTTPProxy, ictx.OldHTTPSProxy)
+			SetGitHTTPProxy(ictx.WorkDir, ictx.Global, ictx.OldHTTPProxy, ictx.oldHTTPProxyAuthMethod)
 		}
 	}
 }
