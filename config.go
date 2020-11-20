@@ -48,8 +48,7 @@ func InputPasswordAgain() string {
 	return password
 }
 
-//
- LoadConfig ...
+// LoadConfig ...
 func LoadConfig() Config {
 	path := GetConfigJSONFilePath()
 
