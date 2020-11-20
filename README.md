@@ -1,4 +1,4 @@
-# fgit
+# fgit  (正在开发中）
 快50倍的"git --> github.com"，为国内开发者
 
 ## Download:
