@@ -52,9 +52,9 @@ func SetGitHTTPProxy(workDir string, global bool, oldHTTPProxy, oldHTTPProxyAuth
 	}
 
 	if len(oldHTTPProxyAuthMethod) > 0 {
-		ExecGit(false, workDir, []string{"config", scope, "https.https://github.com.proxyAuthMethod", oldHTTPProxyAuthMethod})
+		ExecGit(false, workDir, []string{"config", scope, "http.https://github.com.proxyAuthMethod", oldHTTPProxyAuthMethod})
 	} else {
-		ExecGit(false, workDir, []string{"config", scope, "--unset-all", "https.https://github.com.proxyAuthMethod"})
+		ExecGit(false, workDir, []string{"config", scope, "--unset-all", "http.https://github.com.proxyAuthMethod"})
 	}
 }
 
