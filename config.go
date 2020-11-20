@@ -5,38 +5,70 @@ import (
 	"log"
 	"path/filepath"
 
-	"github.com/google/uuid"
 	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 )
 
+// AccountT ...
+type AccountT struct {
+	ID        string `json:"id"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	CreatedAt int64  `json:"createdAt"`
+}
+
+// Account ...
+type Account = *AccountT
+
 // ConfigT ...
 type ConfigT struct {
-	AccountID string `json:"account-id"`
-	Mirror    string `json:"mirror"`
-	Proxy     string `json:"proxy"`
+	Account Account `json:"account"`
+	Mirror  string  `json:"mirror"`
+	Proxy   string  `json:"proxy"`
 }
 
 // Config ...
 type Config = *ConfigT
 
-// LoadConfig ...
+func InputEmail() string {
+	var email string
+	fmt.Scanf("请输入注册邮件：%s", &email)
+	return email
+}
+
+func InputPassword() string {
+	var password string
+	fmt.Scanf("请输入密码：%s", &password)
+	return password
+}
+
+func InputPasswordAgain() string {
+	var password string
+	fmt.Scanf("请再次输入密码：%s", &password)
+	return password
+}
+
+//
+ LoadConfig ...
 func LoadConfig() Config {
 	path := GetConfigJSONFilePath()
 
 	if !FileExists(path) {
-		accountID, err := uuid.NewUUID()
-		if err != nil {
-			panic(errors.Wrap(err, "生成账号ID失败"))
-		}
+		var email string
+		fmt.Scanf("请输入注册邮件：%s", &email)
+
+		var password string
+		fmt.Scanf("请输入密码：%s", &password)
+
+		account := CreateAccount(email, password)
 		SaveConfigJSONFile(path, &ConfigT{
-			AccountID: accountID.String(),
+			Account: account,
 		})
 	}
 	r := ConfigWithJSONFile(path)
 
 	proxy := SelectProxy()
-	r.Proxy = fmt.Sprintf("%s://%s:%s@%s:%d", proxy.Protocol, r.AccountID, "NA", proxy.Host, proxy.Port)
+	r.Proxy = fmt.Sprintf("%s://%s:%s@%s:%d", proxy.Protocol, r.Account.ID, "NA", proxy.Host, proxy.Port)
 
 	if len(r.Mirror) == 0 {
 		r.Mirror = "https://github.com.cnpmjs.org"
