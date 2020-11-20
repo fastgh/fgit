@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/gookit/color"
 )
@@ -75,7 +76,8 @@ func PrintHelp(errorMode bool) {
 	} else {
 		c = color.Blue
 	}
-	c.Printf("fgit v%d.%d.%d: 快50倍的git --> github.com。\n", VersionMajor, VersionMinor, VersionFix)
+
+	c.Printf("fgit v%d.%d.%d (build %v): 快100倍的git --> github.com。\n", VersionMajor, VersionMinor, VersionFix, time.Now().UTC())
 }
 
 func (me CommandLine) String() string {
