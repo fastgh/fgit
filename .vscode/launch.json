@@ -12,7 +12,7 @@
       "program": "${fileDirname}",
       "env": {},
       "cwd": "/home/fastgh/temp",
-      "args": ["--debug", "clone", "https://github.com/qiangyt/jog.git"]
+      "args": ["--debug", "clone", "https://github.com/fastgh/fgit.git"]
     }
   ]
 }
