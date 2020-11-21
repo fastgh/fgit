@@ -79,7 +79,7 @@ fgit是一个可以无缝替换git命令行的工具，使用优化线路为使�
 
       1. push
 
-      2. URL中包含用户名，那么会被判定为私有库，clone/pull/fetch时默认使用镜像模式。
+      2. URL中包含用户名，那么会被判定为私有库。
          对于clone命令，URL是从clone的URL中解析得到，对于其它git命令，则使用`git remote -v`得到
 
      代理模式例如：
