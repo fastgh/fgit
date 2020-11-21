@@ -129,6 +129,8 @@ fgit是一个可以无缝替换git命令行的工具，使用优化线路为使�
 ## 问题反馈和交流：
 
    请提交GITHUB Issues，或者：
+
+   微信号：fastgithub
    
    <img src="doc/wechat_contact.png" alt="image" style="zoom:50%;"/>
 
