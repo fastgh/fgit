@@ -1,5 +1,5 @@
 # fgit
-<img src="https://control.fastgithub.com:10443/static/how-fast-annotated.png" alt="image"/>
+<img src="https://control.fastgithub.com:10443/static/how_fast-annotated.png" alt="image"/>
 
 fgit是一个可以无缝替换git命令行的工具，使用优化线路为使用github.com加速。
 
