@@ -25,8 +25,8 @@ fgit是一个可以无缝替换git命令行的工具，使用优化线路为使�
   镜像服务器或者代理服务器的列表是动态更新，我们会不断更新这个列表。为防止滥用和被误`墙`，代理服务器做了域名访问的限制，只允许访问github.com。
 
 # 几种方案的对比：
-|              | fgit | 公共镜像(https://github.com.cnpmjs.org等）| 自建代理或VPN | 导入国内GIT(码云等) | 缓存(https://gitclone.com) | 代下载(http://gitd.cc) |
-| :-----       | :--- | :-------------------------------------: | :----------: | :---------------: | :----------------------: | :-------------------: |
+|               | fgit | 公共镜像(https://github.com.cnpmjs.org等）| 自建代理或VPN | 导入国内GIT(码云等) | 缓存(https://gitclone.com) | 代下载(http://gitd.cc) |
+| :------------ | :--- | :-------------------------------------: | :----------: | :---------------: | :----------------------: | :-------------------: |
 | 浏览器访问     |      | [x]                                     | [x]          | [x]               |                           |                      |
 | git命令行     | [x]  | [x]                                     | [x]          | [x]               | [x]                       |                      |
 | 无需手工设置   | [x]  |                                         |              |                   |                           | [x]                  |
@@ -34,8 +34,8 @@ fgit是一个可以无缝替换git命令行的工具，使用优化线路为使�
 | 支持私有库     | [x]  |                                         | [x]          |                   |                           |                      |
 | 免费          | [x]  | [x]                                     |              | [x]               | [x]                       | [x]                  |
 | 实时(非缓存)   | [x]  | [x]                                     | [x]          |                   |                           |                      |
-| 不容易被误`墙` | [x]  | [x]                                     |               | [x]              |                           |                      |
-| 动态更新服务器 | [x]   |                                         |              |                   |                          |                      |
+| 不容易被误`墙` | [x]  | [x]                                     |              | [x]              |                           |                      |
+| 动态更新服务器 | [x]   |                                        |              |                   |                           |                      |
 
 
 ## 安装:
@@ -53,20 +53,45 @@ fgit是一个可以无缝替换git命令行的工具，使用优化线路为使�
 ## 使用：
    和常规的git命令行几乎相同，支持各种命令行参数，譬如：
 
-   - 对于公共库，clone/pull/fetch时默认使用镜像模式
+   - 对于公共库，clone/pull/fetch时默认使用镜像模式，基于安全考虑，镜像模式不支持私有库
+
    `fgit clone https://github.com/spring-projects/spring-boot.git --depth=1`
 
-   - 两种情况会判定为私有库如果URL中包含用户名，那么会被判定为私有库，clone/pull/fetch时默认使用镜像模式
-   `fgit clone https://github.com/spring-projects/spring-boot.git --depth=1`
+   - 两种情况会判定为私有库，对于私有库是使用HTTP代理模式，比镜像模式安全
 
-   - 对于私有库，默认使用HTTP代理服务模式
-   `fgit clone https://fastgh@github.com/fastgh/fgit.git`
+      1. push
 
-   - 强制使用HTTP代理
+      2. URL中包含用户名，那么会被判定为私有库，clone/pull/fetch时默认使用镜像模式。
+         对于clone命令，URL是从clone的URL中解析得到，对于其它git命令，则使用`git remote -v`得到
+
+     例如：
+
+      1. `fgit push origin master`
+
+      2. `fgit clone https://fastgh@github.com/fastgh/fgit.git`
+
+     也可以通过`--use-proxy`选项强制走HTTP代理模式
+
+     例如:
+
+      1. `fgit --use-proxy clone https://github.com/fastgh/fgit.git`
+
+   - 其它：
+
+     1. 可以打开调试开关，看一看fgit的工作过程：下载服务器列表 --> 设置镜像或代理 --> 执行git --> 回复镜像或代理
+
+      `fgit --debug clone https://github.com/fastgh/fgit.git`
+
+     2. fgit首次运行时，会在用户主目录下生成一个配置文件.fgit.json，包含服务器地址等信息，必要时可以通过设置这个文件选择接入其它服务方，或指定镜像服务器或代理服务器
 
 ## 编译：
+
   - 安装GO语言开发环境，要求GO版本>=13
+
   - Linux / Mac环境下，`$ ./build.sh`，编译成功后可执行文件会生成`build`目录下；Windows环境下类似，参考`build.sh`
 
-## 问题反馈：
-<img src="doc/wechat_contact.png" alt="image" style="zoom:50%;"/>
+## 问题反馈和交流：
+
+   请提交GITHUB Issues，或者：
+   
+   <img src="doc/wechat_contact.png" alt="image" style="zoom:50%;"/>
