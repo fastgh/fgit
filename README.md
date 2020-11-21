@@ -120,7 +120,7 @@ fgit是一个可以无缝替换git命令行的工具，使用优化线路为使�
 
   - 安装GO语言开发环境，要求GO版本>=13
 
-  - Linux / Mac环境下，`$ ./build.sh`，编译成功后可执行文件会生成`build`目录下；Windows环境下类似，参考`build.sh`
+  - Linux / Mac环境下，`$ ./build.sh`，编译成功后可执行文件会生成在`build`目录下；Windows环境下类似，参考`build.sh`
 
 ## 开源许可证
    
