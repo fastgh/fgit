@@ -9,7 +9,7 @@ fgit是一个可以无缝替换git命令行的工具，使用优化线路为使�
   - 两种工作模式：镜像（反向代理）模式和HTTP代理模式，都是实时连接github.com，不是缓存
   - 支持包括clone/push/pull/fetch在内的各种git命令，兼容git命令行参数，可以用来无缝替换git命令行
   - 只针对github.com加速，不干扰对非github.com库的使用
-  - 使用go语言开发，不是shell脚本或.bat，跨平台（Windows、Linux、Mac)
+  - 使用go语言开发，不是shell脚本或.bat，跨平台。Windows 10、Linux (Unbuntu)、Mac (x86)都实测通过
 
 ## 工作原理：
   git clone为什么慢成每秒几个KB？DNS污染和‘墙’等流传的原因都已经过时了，现在的原因只有一个：因为走的是糟糕的国际线路。所以，解决起来其实也很简单直接，fgit使用的镜像服务器和HTTP代理服务器接入的是优化线路。
@@ -45,7 +45,8 @@ fgit是一个可以无缝替换git命令行的工具，使用优化线路为使�
   - FastGitOrg只支持镜像模式，通过配置成反向代理的nginx来提供镜像服务器，好像不能push（未实测），而且对于私有库和push场景，反向代理是能解密所有数据的。
     和FastGitOrg相比，fgit使用的HTTP代理服务器（SSH后续也会支持）只知道HTTPS连接的header，后面的是HTTPS加密了，fgit代理服务器是解密不了的，所以更安全。
 
-  - FastGitOrg只支持最基础的clone/pull命令，其它命令不支持。两相比较，fgit因为对全部的可能的git命令行参数/选项都做了解析和识别，所以能支持除了submodule以外的所有其它参数，因此可以透明的替换原git命令行。
+  - FastGitOrg只支持最基础的clone/pull命令，其它命令不支持。两相比较，fgit因为对全部的可能的git命令行参数/选项都做了解析和识别，所以能支持除了submodule以外的所有其它参数，因此可以透明的替换原git命令行，
+    使用体验上和原git没什么区别，兼容其它会调用git命令行的工具场景。
 
   - FastGitOrg的镜像服务器地址是写死在客户端的，不是动态拉取，需要加镜像服务器时相对不容易，也容易被误`墙`。
 
