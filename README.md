@@ -64,17 +64,17 @@ fgit是一个可以无缝替换git命令行的工具，使用优化线路为使�
 
   - Mac:
 
-  ```shell
-     sudo curl -L https://github.com/fastgh/fgit/releases/download/v1.0.0/fgit.darwin -o /usr/local/bin/fgit
-     sudo chmod +x /usr/local/bin/fgit
-  ```
+    ```shell
+       sudo curl -L https://github.com/fastgh/fgit/releases/download/v1.0.0/fgit.darwin -o /usr/local/bin/fgit
+       sudo chmod +x /usr/local/bin/fgit
+    ```
 
   - Linux:
 
-  ```shell
-     sudo curl -L https://github.com/fastgh/fgit/releases/download/v1.0.0/fgit.linux -o /usr/local/bin/fgit
-     sudo chmod +x /usr/local/bin/fgit
-  ```
+    ```shell
+       sudo curl -L https://github.com/fastgh/fgit/releases/download/v1.0.0/fgit.linux -o /usr/local/bin/fgit
+       sudo chmod +x /usr/local/bin/fgit
+    ```
 
 ## 使用：
 
