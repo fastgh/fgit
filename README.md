@@ -109,7 +109,9 @@ fgit是一个可以无缝替换git命令行的工具，使用优化线路为使�
    
    2. 暂不支持sub module，2.0版会支持
 
-   3. 实际上，镜像服务器使用的就是https://github.com.cnpmjs.org；而代理服务器目前仅部署了一台，所以应该很快会给代理服务器加上限速
+   3. 实际上，镜像服务器使用的就是https://github.com.cnpmjs.org
+   
+      而代理服务器目前仅部署了一台，所以应该很快会给代理服务器加上限速
 
    4. 代理模式下，执行clone时，会临时修改全局的.gitconfig文件（位于用户主目录下）；非clone时，会临时修改当前目录的.git/config文件。一般情况下，fgit会在执行结束后恢复原先的设置，甚至直接Ctrl+C退出时也能做到恢复，但不排除意外和有bug的情况，这时请检查.gitconfig或.git/config。
 
