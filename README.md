@@ -39,7 +39,9 @@ fgit是一个可以无缝替换git命令行的工具，使用优化线路为使�
 
 
 ## 安装:
-  下载页面：[https://github.com/fastgh/fgit/releases](https://github.com/fastgh/fgit/releases)
+
+  下载页面：[https://github.com/fastgh/fgit/releases](https://github.com/fastgh/fgit/releases)。
+  也可以自己编译安装（方法见后面小节）
 
   - Windows: [https://github.com/fastgh/fgit/releases/download/v1.0.0/fgit.exe](https://github.com/fastgh/fgit/releases/download/v1.0.0/fgit.exe)，下载后把它加入系统路径环境变量
 
@@ -51,11 +53,12 @@ fgit是一个可以无缝替换git命令行的工具，使用优化线路为使�
   ```
 
 ## 使用：
-   和常规的git命令行几乎相同，支持各种命令行参数，譬如：
+
+   - 和常规的git命令行几乎相同，支持各种命令行参数
 
    - 对于公共库，clone/pull/fetch时默认使用镜像模式，基于安全考虑，镜像模式不支持私有库
 
-   `fgit clone https://github.com/spring-projects/spring-boot.git --depth=1`
+     镜像模式例如：`fgit clone https://github.com/spring-projects/spring-boot.git --depth=1`
 
    - 两种情况会判定为私有库，对于私有库是使用HTTP代理模式，比镜像模式安全
 
@@ -64,25 +67,37 @@ fgit是一个可以无缝替换git命令行的工具，使用优化线路为使�
       2. URL中包含用户名，那么会被判定为私有库，clone/pull/fetch时默认使用镜像模式。
          对于clone命令，URL是从clone的URL中解析得到，对于其它git命令，则使用`git remote -v`得到
 
-     例如：
+     代理模式例如：
 
       1. `fgit push origin master`
 
       2. `fgit clone https://fastgh@github.com/fastgh/fgit.git`
 
-     也可以通过`--use-proxy`选项强制走HTTP代理模式
-
-     例如:
+     也可以通过`--use-proxy`选项强制走HTTP代理模式，例如:
 
       1. `fgit --use-proxy clone https://github.com/fastgh/fgit.git`
 
-   - 其它：
+     希望大家尽量使用镜像模式，以节省服务器带宽资源
+
+   - 其它功能：
 
      1. 可以打开调试开关，看一看fgit的工作过程：下载服务器列表 --> 设置镜像或代理 --> 执行git --> 回复镜像或代理
 
-      `fgit --debug clone https://github.com/fastgh/fgit.git`
+        `fgit --debug clone https://github.com/fastgh/fgit.git`
 
      2. fgit首次运行时，会在用户主目录下生成一个配置文件.fgit.json，包含服务器地址等信息，必要时可以通过设置这个文件选择接入其它服务方，或指定镜像服务器或代理服务器
+
+
+## 1.0版的限制：
+
+   1. 暂不支持SSH协议，2.0版会支持
+   
+   2. 暂不支持sub module，2.0版会支持
+
+   3. 实际上，镜像服务器使用的就是https://github.com.cnpmjs.org；而代理服务器目前仅部署了一台，所以应该很快会给代理服务器加上限速
+
+   4. 代理模式下，执行clone时，会临时修改全局的.gitconfig文件（位于用户主目录下）；非clone时，会临时修改当前目录的.git/config文件。一般情况下，fgit会在执行结束后恢复原先的设置，甚至直接Ctrl+C退出时也能做到恢复，但不排除意外和有bug的情况，这时请检查.gitconfig或.git/config。
+   
 
 ## 编译：
 
