@@ -50,6 +50,20 @@ fgit是一个可以无缝替换git命令行的工具，使用优化线路为使�
      sudo chmod +x /usr/local/bin/fgit
   ```
 
+## 使用：
+   和常规的git命令行几乎相同，支持各种命令行参数，譬如：
+
+   - 对于公共库，clone/pull/fetch时默认使用镜像模式
+   `fgit clone https://github.com/spring-projects/spring-boot.git --depth=1`
+
+   - 两种情况会判定为私有库如果URL中包含用户名，那么会被判定为私有库，clone/pull/fetch时默认使用镜像模式
+   `fgit clone https://github.com/spring-projects/spring-boot.git --depth=1`
+
+   - 对于私有库，默认使用HTTP代理服务模式
+   `fgit clone https://fastgh@github.com/fastgh/fgit.git`
+
+   - 强制使用HTTP代理
+
 ## 编译：
   - 安装GO语言开发环境，要求GO版本>=13
   - Linux / Mac环境下，`$ ./build.sh`，编译成功后可执行文件会生成`build`目录下；Windows环境下类似，参考`build.sh`
