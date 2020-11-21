@@ -62,10 +62,17 @@ fgit是一个可以无缝替换git命令行的工具，使用优化线路为使�
 
   - Windows: [https://github.com/fastgh/fgit/releases/download/v1.0.0/fgit.exe](https://github.com/fastgh/fgit/releases/download/v1.0.0/fgit.exe)，下载后把它加入系统路径环境变量
 
-  - Linux / Mac:
+  - Mac:
 
   ```shell
-     sudo curl -L https://github.com/fastgh/fgit/releases/download/v1.0.0/fgit.$(echo `uname -s` | tr A-Z a-z) -o /usr/local/bin/fgit
+     sudo curl -L https://github.com/fastgh/fgit/releases/download/v1.0.0/fgit.darwin -o /usr/local/bin/fgit
+     sudo chmod +x /usr/local/bin/fgit
+  ```
+
+  - Linux:
+
+  ```shell
+     sudo curl -L https://github.com/fastgh/fgit/releases/download/v1.0.0/fgit.linux -o /usr/local/bin/fgit
      sudo chmod +x /usr/local/bin/fgit
   ```
 
@@ -123,6 +130,16 @@ fgit是一个可以无缝替换git命令行的工具，使用优化线路为使�
   - 安装GO语言开发环境，要求GO版本>=13
 
   - Linux / Mac环境下，`$ ./build.sh`，编译成功后可执行文件会生成在`build`目录下；Windows环境下类似，参考`build.sh`
+
+## 2.0版的计划：
+
+  - 支持SSH代理
+
+  - 支持git的sub module
+
+  - 给clone命令增加--archive选项，用来下载后立刻打包clone下来的github项目
+
+  - 增加download命令，用来下载github上的release文件
 
 ## 开源许可证
 
