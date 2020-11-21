@@ -55,4 +55,4 @@ fgit是一个可以无缝替换git命令行的工具，使用优化线路为使�
   - Linux / Mac环境下，`$ ./build.sh`，编译成功后可执行文件会生成`build`目录下；Windows环境下类似，参考`build.sh`
 
 ## 问题反馈：
-<img src="doc/wechat_contact.png" alt="image"/>
+<img src="doc/wechat_contact.png" alt="image" style="zoom:50%;"/>
