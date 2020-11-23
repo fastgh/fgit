@@ -4,7 +4,7 @@
 fgit是一个可以无缝替换git命令行的工具，使用优化线路为使用github.com加速。
 
 ## 特点：
-  - 目前实测git clone速度超过15MB/S；后续为保护线路资源，计划限速为1MB/S
+  - 目前实测git clone速度超过15MB/S
   - 支持github.com私有库，也支持push
   - 两种工作模式：镜像（反向代理）模式和HTTP代理模式，都是实时连接github.com，不是缓存
   - 支持包括clone/push/pull/fetch在内的各种git命令，兼容git命令行参数，可以用来无缝替换git命令行
@@ -12,7 +12,7 @@ fgit是一个可以无缝替换git命令行的工具，使用优化线路为使�
   - 使用go语言开发，不是shell脚本或.bat，跨平台。Windows 10、Linux (Unbuntu)、Mac (x86)都实测通过
 
 ## 工作原理：
-  git clone为什么慢成每秒几个KB？DNS污染和‘墙’等流传的原因都已经过时了，现在的原因只有一个：因为走的是糟糕的国际线路。所以，解决起来其实也很简单直接，fgit使用的镜像服务器和HTTP代理服务器需要接入优化线路。
+  git clone为什么慢成每秒几个KB？DNS污染和‘墙’等流传的原因都已经过时了，现在的主要原因是走的是糟糕的国际线路。所以，解决起来其实也很简单直接，fgit使用的镜像服务器和HTTP代理服务器需要接入优化线路。
 
   知乎上这篇文章做了比较好的解释：[git clone一个github上的仓库，太慢，经常连接失败，但是github官网流畅访问，为什么？](https://www.zhihu.com/question/27159393)
 
@@ -118,11 +118,7 @@ fgit是一个可以无缝替换git命令行的工具，使用优化线路为使�
 
    2. 暂不支持sub module，2.0版会支持
 
-   3. 实际上，镜像服务器使用的就是https://github.com.cnpmjs.org
-
-      而代理服务器目前仅部署了一台，所以应该很快会给代理服务器加上限速
-
-   4. 代理模式下，执行clone时，会临时修改全局的.gitconfig文件（位于用户主目录下）；非clone时，会临时修改当前目录的.git/config文件。一般情况下，fgit会在执行结束后恢复原先的设置，甚至直接Ctrl+C退出时也能做到恢复，但不排除意外和有bug的情况，这时请检查.gitconfig或.git/config。
+   3. 代理模式下，执行clone时，会临时修改全局的.gitconfig文件（位于用户主目录下）；非clone时，会临时修改当前目录的.git/config文件。一般情况下，fgit会在执行结束后恢复原先的设置，甚至直接Ctrl+C退出时也能做到恢复，但不排除意外和有bug的情况，这时请检查.gitconfig或.git/config。
 
 
 ## 编译：
