@@ -138,6 +138,7 @@ func ExecGit(redirect bool, workDir string, args []string) string {
 	}
 
 	if redirect {
+		command.Env = []string{"GIT_SSL_NO_VERIFY=1"}
 		command.Stdout = os.Stdout
 		command.Stderr = os.Stderr
 		var err = command.Start()
