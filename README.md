@@ -1,5 +1,5 @@
 # fgit
-<img src="https://control.fgit.kailash.cloud.com:10443/static/how_fast-annotated.png" alt="image"/>
+<img src="https://github.com/fastgh/fgit/blob/master/doc/how_fast_annotated.png" alt="image"/>
 
 fgit是一个可以无缝替换git命令行的工具，加速对github.com的git clone/pull/push/update/fetch；fgit实时访问github.com，不是缓存。
 
