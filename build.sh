@@ -17,14 +17,19 @@ go_build() {
     local _OS=$1
     local _ARCH=$2
 
+    local _GOARCH=$_ARCH
+    if [ $_ARCH == 'x86_64' ]; then
+      _GOARCH='amd64'
+    fi
+
     local _EXT=$_OS
     if [ $_OS == 'windows' ]; then
       _EXT='exe'
-    elif [ $_OS == 'darwin' ]; then
-      _EXT=${_ARCH}
+    else
+      _EXT=${_OS}.${_ARCH}
     fi
 
-    GOOS=${_OS} GOARCH=${_ARCH} go build -o ${BUILD_DIR}/fgit.${_EXT}
+    GOOS=${_OS} GOARCH=${_GOARCH} go build -o ${BUILD_DIR}/fgit.${_EXT}
 
     #if [ $_OS == $(echo `uname -s` | tr A-Z a-z) ]; then
     #  sudo cp ${BUILD_DIR}/fgit.${_EXT} /usr/local/bin/fgit
@@ -32,8 +37,8 @@ go_build() {
     #fi
 }
 
-go_build linux amd64
-go_build darwin amd64
+go_build linux x86_64
+go_build darwin x86_64
 go_build darwin arm64
-go_build windows amd64
+go_build windows x86_64
 
