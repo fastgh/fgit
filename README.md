@@ -11,6 +11,20 @@ fgit是一个可以无缝替换git命令行的工具，加速对github.com的git
   - 两种工作模式（镜像模式和HTTP代理模式）自动切换：执行git命令前自动切换成使用代理或镜像设置，执行完成后自动移除代理和镜像设置
   - 使用go语言开发，不是shell脚本或.bat，跨平台。Windows 10、Linux (Unbuntu)、Mac (x86和M1)都实测通过
 
+## 安装:
+
+  下载页面：[https://github.com/fastgh/fgit/releases](https://github.com/fastgh/fgit/releases)。
+  也可以自己编译安装（方法见后面小节）
+
+  - Windows: [https://github.com/fastgh/fgit/releases/download/v1.1.0/fgit.exe](https://github.com/fastgh/fgit/releases/download/v1.1.0/fgit.exe)，下载后把它加入系统路径环境变量
+
+  - Mac和Linux:
+
+    ```shell
+       sudo curl -L https://github.com/fastgh/fgit/releases/download/v1.1.0/fgit.$(echo `uname -s` | tr A-Z a-z).$(uname -m) -o /usr/local/bin/fgit
+       sudo chmod +x /usr/local/bin/fgit
+    ```
+
 ## 使用：
 
    - ```diff
@@ -48,19 +62,6 @@ fgit是一个可以无缝替换git命令行的工具，加速对github.com的git
 
      2. fgit首次运行时，会在用户主目录下生成一个配置文件.fgit.json，包含服务器地址等信息，必要时可以通过设置这个文件选择接入其它服务方，或指定镜像服务器或代理服务器
 
-## 安装:
-
-  下载页面：[https://github.com/fastgh/fgit/releases](https://github.com/fastgh/fgit/releases)。
-  也可以自己编译安装（方法见后面小节）
-
-  - Windows: [https://github.com/fastgh/fgit/releases/download/v1.1.0/fgit.exe](https://github.com/fastgh/fgit/releases/download/v1.1.0/fgit.exe)，下载后把它加入系统路径环境变量
-
-  - Mac和Linux:
-
-    ```shell
-       sudo curl -L https://github.com/fastgh/fgit/releases/download/v1.1.0/fgit.$(echo `uname -s` | tr A-Z a-z).$(uname -m) -o /usr/local/bin/fgit
-       sudo chmod +x /usr/local/bin/fgit
-    ```
 
 ## 工作原理：
   git clone为什么慢成每秒几个KB？DNS污染和‘墙’等流传的原因都已经过时了，现在的主要原因是由于我们的访问通常走的是糟糕的国际线路。所以，解决起来其实也很简单直接，fgit使用的镜像服务器和HTTP代理服务器需要接入优化线路。
