@@ -16,12 +16,12 @@ fgit是一个可以无缝替换git命令行的工具，加速对github.com的git
   下载页面：[https://github.com/fastgh/fgit/releases](https://github.com/fastgh/fgit/releases)。
   也可以自己编译安装（方法见后面小节）
 
-  - Windows: [https://github.com/fastgh/fgit/releases/download/v1.1.0/fgit.exe](https://github.com/fastgh/fgit/releases/download/v1.1.0/fgit.exe)，下载后把它加入系统路径环境变量
+  - Windows: [https://github.com/fastgh/fgit/releases/download/v1.2.0/fgit.exe](https://github.com/fastgh/fgit/releases/download/v1.2.0/fgit.exe)，下载后把它加入系统路径环境变量
 
   - Mac和Linux:
 
     ```shell
-       sudo curl -L https://github.com/fastgh/fgit/releases/download/v1.1.0/fgit.$(echo `uname -s` | tr A-Z a-z).$(uname -m) -o /usr/local/bin/fgit
+       sudo curl -L https://github.com/fastgh/fgit/releases/download/v1.2.0/fgit.$(echo `uname -s` | tr A-Z a-z).$(uname -m) -o /usr/local/bin/fgit
        sudo chmod +x /usr/local/bin/fgit
     ```
 

@@ -15,7 +15,7 @@ const (
 	VersionMajor = 1
 
 	// VersionMinor ...
-	VersionMinor = 1
+	VersionMinor = 2
 
 	// VersionFix ...
 	VersionFix = 0
