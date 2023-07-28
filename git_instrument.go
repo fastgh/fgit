@@ -1,8 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/url"
+	"os"
+	"strings"
 
 	"github.com/pkg/errors"
 )
@@ -106,19 +109,27 @@ func ResetGithubRemote() {
 func GeneratedMirroredURL(gitURLText string, mirrorURLText string) string {
 	var err error
 
-	var mirrorURL *url.URL
-	if mirrorURL, err = url.Parse(mirrorURLText); err != nil {
-		panic(errors.Wrapf(err, "无法解析URL: %s", mirrorURLText))
-	}
-
 	var gitURL *url.URL
 	if gitURL, err = url.Parse(gitURLText); err != nil {
 		panic(errors.Wrapf(err, "无法解析URL: %s", gitURLText))
 	}
 
-	gitURL.Scheme = mirrorURL.Scheme
-	gitURL.Host = mirrorURL.Host
-	gitURL.User = mirrorURL.User
+	gitURLPath := gitURL.Path
 
-	return gitURL.String()
+	slashBeforeProj := strings.LastIndex(gitURLPath, "/")
+	if slashBeforeProj <= 0 || slashBeforeProj == len(gitURLPath)-1 {
+		panic(fmt.Sprintf("无法解析URL: %s", gitURLText))
+	}
+	gitProject := gitURLPath[slashBeforeProj+1:]
+	gitOrg := gitURLPath[1:slashBeforeProj]
+
+	return os.Expand(mirrorURLText, func(varName string) string {
+		if varName == "org" {
+			return gitOrg
+		}
+		if varName == "project" {
+			return gitProject
+		}
+		return ""
+	})
 }
