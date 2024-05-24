@@ -38,6 +38,7 @@ go_build() {
 }
 
 go_build linux x86_64
+go_build linux arm64
 go_build darwin x86_64
 go_build darwin arm64
 go_build windows x86_64
